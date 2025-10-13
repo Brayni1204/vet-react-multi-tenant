@@ -1,7 +1,13 @@
 .header {
     background-color: white;
-    padding: 1rem 2rem;
+    padding: 1rem 1rem;
     border-bottom: 1px solid #e0e0e0;
+    position: sticky;
+    /* Hacemos que el encabezado sea sticky */
+    top: 0;
+    /* Se pegará a la parte superior */
+    z-index: 1000;
+    transition: all 0.3s ease-in-out;
 }
 
 .contact-info {
@@ -10,7 +16,6 @@
     gap: 1.5rem;
     font-size: 0.9rem;
     color: #555;
-    margin-bottom: 1rem;
 }
 
 .info-item {
@@ -49,4 +54,11 @@
 
 .nav-links a:hover {
     color: #2ED197;
+}
+
+.header.scrolled .contact-info {
+    opacity: 0;
+    height: 0;
+    margin-bottom: 0;
+    overflow: hidden;
 }

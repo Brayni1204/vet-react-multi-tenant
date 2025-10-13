@@ -1,0 +1,56 @@
+.emergency {
+    padding: 6rem 2rem;
+    background-color: #00457e;
+    color: white;
+    text-align: center;
+}
+
+.emergency h2 {
+    font-size: 3rem;
+    margin-bottom: 2rem;
+}
+
+.emergency-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.emergency-content p {
+    font-size: 1.2rem;
+    line-height: 1.5;
+    margin-bottom: 3rem;
+}
+
+.emergency-contact {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+}
+
+.emergency-item {
+    background-color: white;
+    color: #00457e;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 300px;
+}
+
+.emergency-item .icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: #2ed197;
+}
+
+.emergency-item h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.emergency-item a,
+.emergency-item p {
+    font-size: 1.1rem;
+    text-decoration: none;
+    color: #333;
+}

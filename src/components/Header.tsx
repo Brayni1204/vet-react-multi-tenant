@@ -1,11 +1,16 @@
-// src/components/Header.tsx
+// src/components/Header.tsx (ajustado para recibir props)
 import React from 'react';
 import { FaPhone, FaClock, FaMapMarkerAlt } from 'react-icons/fa';
-import '../styles/Header.css'; // Asegúrate de que las rutas a tus CSS sean correctas
+import '../styles/Header.css';
+import { Link } from 'react-router-dom';
 
-const Header: React.FC = () => {
+interface HeaderProps {
+    isScrolled: boolean;
+}
+
+const Header: React.FC<HeaderProps> = ({ isScrolled }) => {
     return (
-        <header className="header">
+        <header className={`header ${isScrolled ? 'scrolled' : ''}`}>
             <div className="contact-info">
                 <div className="info-item">
                     <FaPhone />
@@ -25,11 +30,11 @@ const Header: React.FC = () => {
                     <h1>MEDICA<span className="logo-zoo">ZOO</span></h1>
                 </div>
                 <ul className="nav-links">
-                    <li><a href="#inicio">Inicio</a></li>
-                    <li><a href="#servicios">Servicios</a></li>
-                    <li><a href="#">Tienda</a></li>
-                    <li><a href="#">Urgencias 24/7</a></li>
-                    <li><a href="#contacto">Contacto</a></li>
+                    <li><Link to="/">Inicio</Link></li>
+                    <li><Link to="/servicios">Servicios</Link></li> {/* O una sección dentro de Home */}
+                    <li><Link to="/tienda">Tienda</Link></li>
+                    <li><Link to="/urgencias">Urgencias 24/7</Link></li>
+                    <li><Link to="/contacto">Contacto</Link></li>
                 </ul>
             </nav>
         </header>

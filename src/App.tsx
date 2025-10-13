@@ -1,27 +1,48 @@
-//import { useState } from 'react'
-/* import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg' */
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
 import Header from './components/Header';
-import Hero from './components/Hero';
-import WhyUs from './components/WhyUs'; // Este componente hay que crearlo también
-import Services from './components/Services';
 import Footer from './components/Footer';
-import './App.css'
+import Home from './pages/Home'; // Importa el nuevo componente de Home
+import Contact from './components/Contact';
+import Store from './components/Store';
+import Emergency from './components/Emergency';
+
+import './App.css';
 
 function App() {
-  /* const [count, setCount] = useState(0) */
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 50) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
 
   return (
-    <div className="App">
-      <Header />
+    <Router>
+      <Header isScrolled={isScrolled} />
       <main>
-        <Hero />
-        <WhyUs />
-        <Services />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/tienda" element={<Store />} />
+          <Route path="/urgencias" element={<Emergency />} />
+          <Route path="/contacto" element={<Contact />} />
+        </Routes>
       </main>
       <Footer />
-    </div>
-  )
+    </Router>
+  );
 }
 
-export default App
+export default App;
