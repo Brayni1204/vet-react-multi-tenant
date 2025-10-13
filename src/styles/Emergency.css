@@ -1,13 +1,13 @@
 .emergency {
-    padding: 6rem 2rem;
+    padding: 3rem 1rem;
     background-color: #00457e;
     color: white;
     text-align: center;
 }
 
 .emergency h2 {
-    font-size: 3rem;
-    margin-bottom: 2rem;
+    font-size: 2rem;
+    margin-bottom: 1rem;
 }
 
 .emergency-content {
@@ -18,7 +18,6 @@
 .emergency-content p {
     font-size: 1.2rem;
     line-height: 1.5;
-    margin-bottom: 3rem;
 }
 
 .emergency-contact {
@@ -30,7 +29,7 @@
 .emergency-item {
     background-color: white;
     color: #00457e;
-    padding: 2rem;
+    padding: 1rem;
     border-radius: 10px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     width: 100%;
@@ -39,12 +38,12 @@
 
 .emergency-item .icon {
     font-size: 2.5rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
     color: #2ed197;
 }
 
 .emergency-item h3 {
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     margin-bottom: 0.5rem;
 }
 

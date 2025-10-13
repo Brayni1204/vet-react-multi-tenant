@@ -1,7 +1,8 @@
 // src/components/Footer.tsx
 import React from 'react';
 import { FaFacebook, FaInstagram } from 'react-icons/fa';
-import '../styles/Footer.css'; // Asegúrate de que la ruta sea correcta
+import '../styles/Footer.css';
+import { Link } from 'react-router-dom'; // Importa el componente Link
 
 const Footer: React.FC = () => {
     return (
@@ -17,11 +18,11 @@ const Footer: React.FC = () => {
                 <div className="footer-section">
                     <h3>Navegación</h3>
                     <ul>
-                        <li><a href="#">Inicio</a></li>
-                        <li><a href="#">Servicios</a></li>
-                        <li><a href="#">Tienda</a></li>
-                        <li><a href="#">Urgencias 24/7</a></li>
-                        <li><a href="#">Contacto</a></li>
+                        <li><Link to="/">Inicio</Link></li>
+                        <li><Link to="/servicios">Servicios</Link></li>
+                        <li><Link to="/tienda">Tienda</Link></li>
+                        <li><Link to="/urgencias">Urgencias 24/7</Link></li>
+                        <li><Link to="/contacto">Contacto</Link></li>
                     </ul>
                 </div>
 
