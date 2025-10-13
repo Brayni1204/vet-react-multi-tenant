@@ -14,7 +14,7 @@ const Hero: React.FC = () => {
                 </div>
             </div>
             <div className="hero-image">
-                {/* Aquí iría la imagen */}
+                <img src="/images/pexels.jpg" alt="Perro de la veterinaria" />
             </div>
         </section>
     );

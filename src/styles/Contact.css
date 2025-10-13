@@ -58,3 +58,16 @@
     border-radius: 5px;
     font-size: 1rem;
 }
+
+@media (max-width: 768px) {
+    .contact {
+        flex-direction: column;
+        padding: 2rem 1rem;
+        gap: 2rem;
+    }
+
+    .contact-info-container h2,
+    .contact-form-container h2 {
+        font-size: 2rem;
+    }
+}

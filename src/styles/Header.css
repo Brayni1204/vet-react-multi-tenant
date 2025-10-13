@@ -1,6 +1,6 @@
 .header {
     background-color: white;
-    padding: 1rem 1rem;
+    padding: 1rem 1rem 0.5rem 1rem;
     border-bottom: 1px solid #e0e0e0;
     position: sticky;
     /* Hacemos que el encabezado sea sticky */
@@ -31,7 +31,7 @@
 }
 
 .logo h1 {
-    font-size: 2rem;
+    font-size: 1.5rem;
     color: #00457E;
 }
 
@@ -50,6 +50,7 @@
     color: #333;
     font-weight: 500;
     transition: color 0.3s;
+    font-size: 1.1rem;
 }
 
 .nav-links a:hover {
@@ -61,4 +62,92 @@
     height: 0;
     margin-bottom: 0;
     overflow: hidden;
+}
+
+/* src/styles/Header.css */
+/* ... tus estilos existentes para desktop ... */
+
+.menu-toggle {
+    display: none;
+    /* Por defecto, oculto en desktop */
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #00457E;
+    z-index: 1001;
+}
+
+/* Menú lateral (off-canvas) */
+.off-canvas-menu {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 300px;
+    height: 100%;
+    background-color: white;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+    transform: translateX(100%);
+    transition: transform 0.3s ease-in-out;
+    z-index: 2000;
+}
+
+.off-canvas-menu.open {
+    transform: translateX(0);
+    /* Desliza para mostrar el menú */
+}
+
+.off-canvas-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.close-menu {
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #00457E;
+}
+
+.off-canvas-links {
+    list-style: none;
+    padding: 1rem 2rem;
+    margin: 0;
+    text-align: left;
+}
+
+.off-canvas-links li a {
+    display: block;
+    padding: 1rem 0;
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.off-canvas-links li:last-child a {
+    border-bottom: none;
+}
+
+.off-canvas-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1500;
+}
+
+/* Media query para ocultar el menú de escritorio y mostrar el de hamburguesa */
+@media (max-width: 768px) {
+    .desktop-menu {
+        display: none;
+        /* Oculta el menú de navegación completo en móviles */
+    }
+
+    .menu-toggle {
+        display: block;
+        /* Muestra el botón de hamburguesa */
+    }
 }

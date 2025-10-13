@@ -51,3 +51,40 @@
     Estilos para el contenedor de la imagen
     Puedes usar una imagen de fondo o una etiqueta img
 } */
+.hero-image {
+    width: 50%;
+    /* O el tamaño que prefieras */
+    max-width: 800px;
+}
+
+.hero-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 10px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+    .hero {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .hero-content h1 {
+        font-size: 2.5rem;
+    }
+
+    .hero-content p {
+        font-size: 1rem;
+    }
+
+    .hero-buttons {
+        justify-content: center;
+    }
+
+    .hero-image {
+        width: 80%;
+        margin-top: 2rem;
+    }
+}

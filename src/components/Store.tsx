@@ -14,7 +14,7 @@ const productsData: Product[] = [
         id: 1,
         name: 'Alimento Premium para Perro',
         description: 'Nutrición completa para perros de todas las edades. Hecho con ingredientes naturales.',
-        image: '/images/alimento-perro.jpg',
+        image: '/images/Alimento-Perro.jpg',
         price: '$500 MXN',
     },
     {

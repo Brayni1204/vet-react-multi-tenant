@@ -91,3 +91,26 @@
     background-color: #2ed197;
     color: white;
 }
+
+@media (max-width: 768px) {
+    .why-us {
+        padding: 2rem 1rem;
+    }
+
+    .why-us-intro h2 {
+        font-size: 2rem;
+    }
+
+    .why-us-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .call-to-action {
+        padding: 2rem 1rem;
+    }
+
+    .call-to-action h2 {
+        font-size: 1.5rem;
+    }
+}

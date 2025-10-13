@@ -15,13 +15,13 @@ const servicesData: Service[] = [
     {
         title: 'Servicio Médico',
         description: 'Consultas generales y especializadas, vacunas y desparasitación.',
-        image: '/images/servicio-medico.jpg', // Asegúrate de tener esta imagen en tu carpeta `public`
+        image: './images/service_01.jpg', // Asegúrate de tener esta imagen en tu carpeta `public`
         actionText: 'Agendar consulta',
     },
     {
         title: 'Grooming',
         description: 'Baño, corte, limpieza de oídos y uñas.',
-        image: '/images/grooming.jpg',
+        image: '/images/gustavo.jpg',
         actionText: 'Agendar Grooming',
     },
     // Agrega el tercer servicio aquí

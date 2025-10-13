@@ -74,3 +74,28 @@
 
 /* Opcional: Estilos para las huellas de perro si quieres agregarlas */
 /* .service-item::before { ... } */
+@media (max-width: 768px) {
+    .services {
+        padding: 2rem 1rem;
+    }
+
+    .services h2 {
+        font-size: 2rem;
+    }
+
+    .service-item,
+    .service-item:nth-child(even) {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .service-image-wrapper {
+        width: 200px;
+        height: 200px;
+    }
+
+    .service-item::before {
+        display: none;
+        /* Oculta las huellas de perro */
+    }
+}

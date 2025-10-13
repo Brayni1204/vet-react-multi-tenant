@@ -56,3 +56,17 @@
     color: #2ed197;
     margin-bottom: 1.5rem;
 }
+
+@media (max-width: 768px) {
+    .store {
+        padding: 2rem 1rem;
+    }
+
+    .store h2 {
+        font-size: 2rem;
+    }
+
+    .product-grid {
+        grid-template-columns: 1fr;
+    }
+}
