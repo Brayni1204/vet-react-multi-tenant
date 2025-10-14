@@ -1,22 +1,33 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../../styles/auth.css'; // Reutilizaremos los estilos de autenticación
+import { useAuth } from '../../contexts/AuthContext';
+import '../../styles/auth.css';
 
 const AdminLogin: React.FC = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const { login } = useAuth();
     const navigate = useNavigate();
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Lógica de autenticación de administrador simulada
-        if (email === 'admin@vet.com' && password === 'password') {
-            console.log('Admin logged in successfully!');
-            // En una aplicación real, aquí guardarías el token de autenticación
-            // y redirigirías al dashboard de administración.
-            navigate('/admin/dashboard');
-        } else {
-            alert('Credenciales incorrectas. Intenta de nuevo.');
+        try {
+            const response = await fetch('/api/auth/admin/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password }),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                login(data.token);
+                navigate('/admin/dashboard', { replace: true });
+            } else {
+                alert('Credenciales incorrectas. Intenta de nuevo.');
+            }
+        } catch (error) {
+            console.error('Error de autenticación:', error);
+            alert('Ocurrió un error al intentar iniciar sesión.');
         }
     };
 

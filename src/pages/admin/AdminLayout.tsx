@@ -1,9 +1,16 @@
 import React from 'react';
-import type { PropsWithChildren } from 'react'; // Importación corregida
-import { NavLink } from 'react-router-dom';
+import type { PropsWithChildren } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
 import '../../styles/admin.css';
 
 const AdminLayout: React.FC<PropsWithChildren> = ({ children }) => {
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        localStorage.removeItem('admin-token');
+        navigate('/admin/login');
+    };
+
     return (
         <div className="admin-layout">
             <aside className="admin-sidebar">
@@ -16,7 +23,7 @@ const AdminLayout: React.FC<PropsWithChildren> = ({ children }) => {
                         <li><NavLink to="/admin/services">Servicios</NavLink></li>
                         <li><NavLink to="/admin/profile">Mi Clínica</NavLink></li>
                         {/* Agrega más enlaces de navegación aquí */}
-                        <li><NavLink to="/">Cerrar Sesión</NavLink></li>
+                        <li><a onClick={handleLogout}>Cerrar Sesión</a></li>
                     </ul>
                 </nav>
             </aside>

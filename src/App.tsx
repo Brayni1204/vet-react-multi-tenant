@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { TenantProvider } from './contexts/TenantContext';
+import { AuthProvider } from './contexts/AuthContext';
 
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -20,8 +21,10 @@ import AdminLayout from './pages/admin/AdminLayout';
 import Dashboard from './pages/admin/Dashboard';
 import ServicesAdmin from './pages/admin/ServicesAdmin';
 import ProfileAdmin from './pages/admin/ProfileAdmin';
-import AdminLogin from './pages/admin/AdminLogin'; // Importamos el componente
-import AuthLayout from './pages/AuthLayout'; // Usaremos este layout
+import AdminLogin from './pages/admin/AdminLogin';
+import AuthLayout from './pages/AuthLayout';
+
+import ProtectedRoute from './components/ProtectedRoute';
 
 import './App.css';
 
@@ -48,28 +51,38 @@ function App() {
   return (
     <Router>
       <TenantProvider>
-        <ScrollToTop />
-        {shouldShowHeaderFooter && <Header isScrolled={isScrolled} />}
-        <main>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/servicios" element={<Services />} />
-            <Route path="/tienda" element={<Store />} />
-            <Route path="/urgencias" element={<Emergency />} />
-            <Route path="/contacto" element={<Contact />} />
-            <Route path="/citas" element={<AppointmentPage />} />
+        <AuthProvider>
+          <ScrollToTop />
+          {shouldShowHeaderFooter && <Header isScrolled={isScrolled} />}
+          <main>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/servicios" element={<Services />} />
+              <Route path="/tienda" element={<Store />} />
+              <Route path="/urgencias" element={<Emergency />} />
+              <Route path="/contacto" element={<Contact />} />
+              <Route path="/citas" element={<AppointmentPage />} />
 
-            <Route path="/login" element={<AuthLayout><Login /></AuthLayout>} />
-            <Route path="/register" element={<AuthLayout><Register /></AuthLayout>} />
+              <Route path="/login" element={<AuthLayout><Login /></AuthLayout>} />
+              <Route path="/register" element={<AuthLayout><Register /></AuthLayout>} />
 
-            <Route path="/admin" element={<AdminLayout><Dashboard /></AdminLayout>} />
-            <Route path="/admin/dashboard" element={<AdminLayout><Dashboard /></AdminLayout>} />
-            <Route path="/admin/services" element={<AdminLayout><ServicesAdmin /></AdminLayout>} />
-            <Route path="/admin/profile" element={<AdminLayout><ProfileAdmin /></AdminLayout>} />
-            <Route path="/admin/login" element={<AuthLayout><AdminLogin /></AuthLayout>} /> {/* Ruta para el login de admin */}
-          </Routes>
-        </main>
-        {shouldShowHeaderFooter && <Footer />}
+              {/* Rutas protegidas */}
+              <Route path="/admin/*" element={
+                <ProtectedRoute>
+                  <AdminLayout>
+                    <Routes>
+                      <Route path="dashboard" element={<Dashboard />} />
+                      <Route path="services" element={<ServicesAdmin />} />
+                      <Route path="profile" element={<ProfileAdmin />} />
+                    </Routes>
+                  </AdminLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/login" element={<AuthLayout><AdminLogin /></AuthLayout>} />
+            </Routes>
+          </main>
+          {shouldShowHeaderFooter && <Footer />}
+        </AuthProvider>
       </TenantProvider>
     </Router>
   );
