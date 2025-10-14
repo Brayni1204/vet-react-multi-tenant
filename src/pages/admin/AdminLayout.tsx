@@ -1,5 +1,5 @@
 import React from 'react';
-import type { PropsWithChildren } from 'react';
+import type { PropsWithChildren } from 'react'; // Importación corregida
 import { NavLink } from 'react-router-dom';
 import '../../styles/admin.css';
 

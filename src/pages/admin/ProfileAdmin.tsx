@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import '../../styles/admin.css'; // Usa el mismo archivo de estilos de administración
+import '../../styles/admin.css';
 
 // Interfaz para los datos del perfil de la clínica
 interface ClinicProfile {
