@@ -1,18 +1,16 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
 import '../../styles/auth.css';
 
 const AdminLogin: React.FC = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const { login } = useAuth();
     const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const response = await fetch('/api/auth/admin/login', {
+            const response = await fetch('/api/auth/admin/login', { // Usamos la ruta relativa
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password }),
@@ -20,7 +18,8 @@ const AdminLogin: React.FC = () => {
 
             if (response.ok) {
                 const data = await response.json();
-                login(data.token);
+                localStorage.setItem('admin-token', data.token);
+                // Usamos navigate con una ruta relativa para el enrutador de React
                 navigate('/admin/dashboard', { replace: true });
             } else {
                 alert('Credenciales incorrectas. Intenta de nuevo.');

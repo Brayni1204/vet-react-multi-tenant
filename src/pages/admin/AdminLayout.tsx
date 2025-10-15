@@ -1,3 +1,4 @@
+// src/pages/admin/AdminLayout.tsx
 import React from 'react';
 import type { PropsWithChildren } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
