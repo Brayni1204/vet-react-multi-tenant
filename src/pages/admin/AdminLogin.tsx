@@ -10,7 +10,8 @@ const AdminLogin: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const response = await fetch('/api/auth/admin/login', { // Usamos la ruta relativa
+            // Usamos la URL relativa para que el proxy de Vite la redirija
+            const response = await fetch('/api/auth/admin/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password }),
@@ -19,8 +20,7 @@ const AdminLogin: React.FC = () => {
             if (response.ok) {
                 const data = await response.json();
                 localStorage.setItem('admin-token', data.token);
-                // Usamos navigate con una ruta relativa para el enrutador de React
-                navigate('/admin/dashboard', { replace: true });
+                navigate(`/chavez/admin/dashboard`, { replace: true });
             } else {
                 alert('Credenciales incorrectas. Intenta de nuevo.');
             }
