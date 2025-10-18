@@ -10,8 +10,11 @@ const AdminLogin: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            // Usamos la URL relativa para que el proxy de Vite la redirija
-            const response = await fetch('/api/auth/admin/login', {
+            // 🚨 CAMBIO CLAVE: Usa el hostname completo con el puerto del backend (4000)
+            const hostname = window.location.hostname; // Será 'chavez.localhost'
+            const targetUrl = `http://${hostname}:4000/api/auth/admin/login`;
+
+            const response = await fetch(targetUrl, { // <--- Usamos la URL completa
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password }),
@@ -19,8 +22,12 @@ const AdminLogin: React.FC = () => {
 
             if (response.ok) {
                 const data = await response.json();
+                // Ojo: Si el backend devuelve el ID del inquilino, úsalo para la navegación
+                // Asumo que 'chavez' viene de 'window.location.hostname' o el backend lo devuelve.
+                // Si tienes acceso al TenantContext, úsalo. Por simplicidad, extraemos el slug del host.
+                /* const tenantSlug = hostname.split('.')[0]; */
                 localStorage.setItem('admin-token', data.token);
-                navigate(`/chavez/admin/dashboard`, { replace: true });
+                navigate(`/admin/dashboard`, { replace: true });
             } else {
                 alert('Credenciales incorrectas. Intenta de nuevo.');
             }
