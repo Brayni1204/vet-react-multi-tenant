@@ -1,6 +1,7 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 // src/pages/admin/ServicesAdmin.tsx
-import React, { useState, useEffect } from 'react';
-import { useTenant } from '../../contexts/TenantContext';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useTenant } from '../../contexts/TenantContext'; // Importamos el hook
 import '../../styles/admin.css';
 
 interface Service {
@@ -24,17 +25,27 @@ const ServicesAdmin: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [fetchError, setFetchError] = useState<string | null>(null);
     const token = localStorage.getItem('admin-token');
+    const hostname = window.location.hostname;
 
-    const fetchServices = async () => {
+    // Función auxiliar para construir la URL base del API
+    const getBaseUrl = () => `http://${hostname}:4000/api/tenants/${tenantData?.id}`;
+
+    const fetchServices = useCallback(async () => {
         if (!tenantData?.id) return;
         setIsLoading(true);
+        setFetchError(null);
+
+        // 🛠️ FIX: Usar la URL completa del backend
+        const url = `${getBaseUrl()}/services`;
+
         try {
-            const response = await fetch(`/api/tenants/${tenantData.id}/services`, {
+            const response = await fetch(url, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await response.json();
             if (response.ok) {
-                setServices(data.services);
+                // Mantenemos la estructura de la respuesta para el front
+                setServices(data.services || []);
             } else {
                 throw new Error(data.message || 'No se pudieron cargar los servicios.');
             }
@@ -43,13 +54,13 @@ const ServicesAdmin: React.FC = () => {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [tenantData, token, hostname]);
 
     useEffect(() => {
         if (tenantData) {
             fetchServices();
         }
-    }, [tenantData]);
+    }, [tenantData, fetchServices]);
 
     const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -61,8 +72,17 @@ const ServicesAdmin: React.FC = () => {
         setIsLoading(true);
         setFetchError(null);
 
+        if (!tenantData?.id) {
+            setFetchError("ID de inquilino no disponible.");
+            setIsLoading(false);
+            return;
+        }
+
         const method = isEditing ? 'PUT' : 'POST';
-        const url = isEditing ? `/api/tenants/${tenantData?.id}/services/${isEditing}` : `/api/tenants/${tenantData?.id}/services`;
+        // 🛠️ FIX: Usar la URL completa del backend
+        const url = isEditing
+            ? `${getBaseUrl()}/services/${isEditing}`
+            : `${getBaseUrl()}/services`;
 
         try {
             const response = await fetch(url, {
@@ -91,15 +111,22 @@ const ServicesAdmin: React.FC = () => {
 
     const handleDelete = async (serviceId: number) => {
         if (!window.confirm('¿Estás seguro de que quieres eliminar este servicio?')) return;
+
+        if (!tenantData?.id) return;
+
+        // 🛠️ FIX: Usar la URL completa del backend
+        const url = `${getBaseUrl()}/services/${serviceId}`;
+
         try {
-            const response = await fetch(`/api/tenants/${tenantData?.id}/services/${serviceId}`, {
+            const response = await fetch(url, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.ok) {
                 fetchServices();
             } else {
-                throw new Error('No se pudo eliminar el servicio.');
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'No se pudo eliminar el servicio.');
             }
         } catch (err) {
             setFetchError(err instanceof Error ? err.message : 'Error al eliminar el servicio.');
@@ -137,7 +164,7 @@ const ServicesAdmin: React.FC = () => {
                     <div className="admin-actions">
                         <button type="submit" className="btn primary" disabled={isLoading}>{isLoading ? 'Guardando...' : 'Guardar'}</button>
                         {isEditing && (
-                            <button type="button" className="btn secondary" onClick={() => setIsEditing(null)}>Cancelar</button>
+                            <button type="button" className="btn secondary" onClick={() => { setIsEditing(null); setFormState({ title: '', description: '', image: '' }); }} disabled={isLoading}>Cancelar</button>
                         )}
                     </div>
                 </form>

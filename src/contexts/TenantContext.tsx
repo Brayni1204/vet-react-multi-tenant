@@ -41,60 +41,56 @@ export const TenantProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             setLoading(true);
             setError(null);
 
-            const pathParts = location.pathname.split('/');
-            const tenantId = pathParts.length > 1 && pathParts[1] ? pathParts[1] : 'default-vet'; // Fallback to a default tenant
+            // Obtenemos el hostname (e.g., chavez.localhost) para construir la URL del backend (puerto 4000)
+            const hostname = window.location.hostname;
+            // 🎯 Usamos el endpoint GET /api/tenants/profile para cargar los datos del inquilino actual.
+            const targetUrl = `http://${hostname}:4000/api/tenants/profile`;
+            const token = localStorage.getItem('admin-token'); // Obtenemos el token de autenticación
 
             try {
-                // Here you would make a real API call. We'll simulate it for now.
-                // For example: `const response = await fetch(`/api/tenants/${tenantId}`);`
-                // Then, parse the response.
+                // Hacemos la llamada a la API con el token en los headers para autenticación
+                const response = await fetch(targetUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        // Incluimos el token para que el backend sepa de qué admin se trata
+                        ...(token && { 'Authorization': `Bearer ${token}` })
+                    },
+                });
 
-                // Simulating data fetching
-                if (tenantId === 'chavez-vet') {
-                    setTenantData({
-                        id: 'chavez-vet',
-                        name: 'Clínica Veterinaria Chávez',
-                        logoUrl: '/images/chavez-logo.svg',
-                        colors: {
-                            primary: '#3A5A40',
-                            secondary: '#A3B18A',
-                        },
-                        contact: {
-                            phone: '+52 55 1234 5678',
-                            email: 'info@chavez-vet.com',
-                            address: 'Avenida Siempre Viva 742, Ciudad de México',
-                            schedule: 'L-V: 9:00 - 18:00hrs',
-                        },
-                        services: [
-                            { title: 'Consulta Veterinaria', description: 'Atención médica integral', image: '/images/chavez-consulta.jpg' },
-                            // Add more services specific to 'chavez-vet'
-                        ],
-                    });
-                } else {
-                    // Default tenant data (MedicaZoo)
-                    setTenantData({
-                        id: 'default-vet',
-                        name: 'MedicaZoo',
-                        logoUrl: '/images/medica-zoo-logo.svg',
-                        colors: {
-                            primary: '#00457E',
-                            secondary: '#2ED197',
-                        },
-                        contact: {
-                            phone: '+55 25 08 76 57',
-                            email: 'contacto@medicazoo.com',
-                            address: 'Ejido Viejo de Santa Ursula Coapa, Coyoacán',
-                            schedule: 'L-S: 10:00 - 19:00hrs',
-                        },
-                        services: [
-                            // Default services
-                            { title: 'Servicio Médico', description: 'Consultas generales', image: '/images/servicio-medico.jpg' },
-                            { title: 'Grooming', description: 'Baño, corte, etc.', image: '/images/grooming.jpg' }
-                        ],
-                    });
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'No se pudo cargar el perfil de la clínica desde el API.');
                 }
+
+                const data = await response.json();
+                const apiTenant = data.tenant;
+
+                // Mapeamos la respuesta del backend a la estructura del frontend (TenantData)
+                const newTenantData: TenantData = {
+                    id: apiTenant.tenantId, // El slug (e.g. 'chavez') es el ID en el front
+                    name: apiTenant.name,
+                    logoUrl: apiTenant.logoUrl || '/images/default-logo.svg',
+                    colors: {
+                        primary: apiTenant.primaryColor || '#00457E',
+                        secondary: apiTenant.secondaryColor || '#2ED197',
+                    },
+                    contact: {
+                        phone: apiTenant.phone,
+                        email: apiTenant.email,
+                        address: apiTenant.address,
+                        schedule: apiTenant.schedule,
+                    },
+                    // Mantenemos services como un array vacío o el valor del API si lo trae
+                    services: apiTenant.services || [],
+                };
+
+                setTenantData(newTenantData);
+
             } catch (err) {
-                setError('Failed to load tenant data.');
+                const message = err instanceof Error ? err.message : 'Ocurrió un error inesperado al cargar la data del inquilino.';
+                setError(message);
+                setTenantData(null);
             } finally {
                 setLoading(false);
             }

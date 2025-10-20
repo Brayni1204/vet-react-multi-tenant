@@ -57,8 +57,11 @@ const ProfileAdmin: React.FC = () => {
             return;
         }
 
+        const hostname = window.location.hostname;
+        const targetUrl = `http://${hostname}:4000/api/tenants/${tenantData.id}`; // FIX: Usar la URL completa del backend (Puerto 4000)
+
         try {
-            const response = await fetch(`/api/tenants/${tenantData.id}`, {
+            const response = await fetch(targetUrl, { // Usamos la URL completa
                 method: 'PUT', // Usamos PUT para actualizar
                 headers: {
                     'Content-Type': 'application/json',
