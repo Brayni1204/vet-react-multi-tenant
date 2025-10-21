@@ -52,13 +52,15 @@ body {
     width: 250px;
     background-color: var(--admin-sidebar-bg);
     color: var(--admin-sidebar-text);
-    padding: 2rem 0;
+    padding: 2rem 0rem 0rem 0rem;
+    position: fixed;
+    top: 0;
+    left: 0;
     box-shadow: 4px 0 10px rgba(0, 0, 0, 0.3);
     flex-shrink: 0;
     transition: transform 0.3s ease-in-out;
     position: sticky;
     top: 0;
-    height: 100vh;
     display: flex;
     flex-direction: column;
     z-index: 1000;
@@ -181,7 +183,7 @@ body {
 /* 🎯 Toggle de Tema y Logout        */
 /* ----------------------------------- */
 .sidebar-footer {
-    padding: 1rem 2rem;
+    padding: 0rem 1.5rem;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     margin-top: auto;
 }
@@ -211,7 +213,6 @@ body {
     align-items: center;
     justify-content: space-between;
     padding: 0.5rem 0;
-    margin-bottom: 1rem;
 }
 
 .theme-toggle-btn {
