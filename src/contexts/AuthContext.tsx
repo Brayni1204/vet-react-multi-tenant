@@ -6,7 +6,8 @@ interface AuthContextType {
     isAuthenticated: boolean;
     token: string | null;
     login: (token: string) => void;
-    logout: () => void;
+    // 🚨 logout ahora es asíncrono y devuelve una promesa
+    logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -22,7 +23,31 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setIsAuthenticated(true);
     };
 
-    const logout = () => {
+    // 🚨 Lógica de Logout actualizada para llamar al API
+    const logout = async () => {
+        const currentToken = localStorage.getItem('admin-token');
+        const hostname = window.location.hostname;
+        const targetUrl = `http://${hostname}:4000/api/auth/admin/logout`; // 🎯 Endpoint de Logout en el Backend
+
+        // 1. Llamada al backend para invalidar el token (si existe)
+        if (currentToken) {
+            try {
+                // Hacemos una llamada POST al backend para cerrar la sesión (opcionalmente invalidar token en DB)
+                await fetch(targetUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${currentToken}`
+                    },
+                    // No verificamos el response.ok estrictamente aquí, ya que el objetivo principal es limpiar el frontend.
+                    // Pero si quieres manejar errores silenciosamente en el log:
+                });
+            } catch (error) {
+                console.error("Error al notificar al backend sobre el cierre de sesión:", error);
+            }
+        }
+
+        // 2. Limpieza en el frontend (CRUCIAL)
         localStorage.removeItem('admin-token');
         setToken(null);
         setIsAuthenticated(false);

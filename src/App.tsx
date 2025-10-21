@@ -1,8 +1,9 @@
 // src/App.tsx
 import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'; // 🚨 Importamos Navigate
 import { TenantProvider } from './contexts/TenantContext';
 import { AuthProvider } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext'; // Asumiendo que ya fue implementado
 
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -24,9 +25,6 @@ import ServicesAdmin from './pages/admin/ServicesAdmin';
 import ProfileAdmin from './pages/admin/ProfileAdmin';
 import AdminLogin from './pages/admin/AdminLogin';
 import AuthLayout from './pages/AuthLayout';
-
-import { ThemeProvider } from './contexts/ThemeContext';
-
 
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -76,6 +74,8 @@ function App() {
                   <ProtectedRoute>
                     <AdminLayout>
                       <Routes>
+                        {/* 🚨 Redirige la ruta base /admin a /admin/dashboard */}
+                        <Route index element={<Navigate to="dashboard" replace />} />
                         <Route path="dashboard" element={<Dashboard />} />
                         <Route path="services" element={<ServicesAdmin />} />
                         <Route path="profile" element={<ProfileAdmin />} />

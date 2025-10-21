@@ -89,9 +89,9 @@ const ProfileAdmin: React.FC = () => {
     if (error || !tenantData) return <div>{error || "No se pudo cargar la información de la clínica."}</div>;
 
     return (
-        <div className="profile-admin-page">
+        <div className="profile-admin-page"> {/* Clase principal de estilo */}
             <h2>Mi Clínica</h2>
-            <div className="profile-card">
+            <div className="profile-card"> {/* Contenedor de la tarjeta de perfil */}
                 {isEditing ? (
                     <form onSubmit={handleSave} className="profile-edit-form">
                         <div className="form-group">

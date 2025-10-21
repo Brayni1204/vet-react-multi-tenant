@@ -238,23 +238,19 @@ const ServicesAdmin: React.FC = () => {
 
                     <div className="form-group">
                         <label htmlFor="title">Título</label>
-                        {/* 🎯 FIX: Se añadió id="title" */}
                         <input type="text" name="title" id="title" value={formState.title} onChange={handleFormChange} required />
                     </div>
 
                     <div className="form-group">
                         <label htmlFor="description">Descripción</label>
-                        {/* 🎯 FIX: Se añadió id="description" */}
                         <textarea name="description" id="description" value={formState.description} onChange={handleFormChange} required />
                     </div>
 
                     <div className="form-group file-upload-group">
                         <label htmlFor="imageFile">
                             Subir Imagen
-                            {/* Muestra el nombre de archivo o la etiqueta "Actual" */}
                             {(isEditing && formState.image) ? ` (Actual: ${formState.image.substring(formState.image.lastIndexOf('/') + 1)})` : ''}
                         </label>
-                        {/* 🎯 FIX: Se añadió id="imageFile" */}
                         <input type="file" name="imageFile" id="imageFile" onChange={handleFileChange} accept="image/*" />
 
                         {/* Previsualización */}
@@ -305,7 +301,7 @@ const ServicesAdmin: React.FC = () => {
 
                 {/* Controles de Filtrado y Búsqueda */}
                 <div className="filter-group">
-                    <div className="search-bar">
+                    <div className="search-bar"> {/* Clase que usa el estilo del buscador */}
                         <IconSearch />
                         <input
                             type="text"
@@ -333,7 +329,6 @@ const ServicesAdmin: React.FC = () => {
                 <div className="services-list">
                     {services.length > 0 ? (
                         services.map(service => (
-                            // Aplicamos la clase inactive-card si el servicio no está activo
                             <div key={service.id} className={`service-admin-item card-shadow ${!service.is_active ? 'inactive-card' : ''}`}>
                                 <div className="service-image-container">
                                     {service.image ? (
@@ -357,7 +352,6 @@ const ServicesAdmin: React.FC = () => {
 
                                         {/* Botón de activación/desactivación dinámico */}
                                         <button
-                                            // Cambia la clase de color y el endpoint según el estado
                                             className={`btn small ${service.is_active ? 'danger' : 'success'}`}
                                             onClick={() => handleToggleActive(service.id, service.is_active)}
                                         >

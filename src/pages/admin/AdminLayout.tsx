@@ -1,9 +1,9 @@
 // src/pages/admin/AdminLayout.tsx
-import React, { type PropsWithChildren, useState, useMemo } from 'react'; // 🆕 useMemo
-import { NavLink, useNavigate, Link } from 'react-router-dom'; // 🆕 Importamos Link
-// 🆕 Iconos para la búsqueda
+import React, { type PropsWithChildren, useState, useMemo } from 'react';
+import { NavLink, useNavigate, Link } from 'react-router-dom';
 import { FaTachometerAlt, FaClipboardList, FaClinicMedical, FaSignOutAlt, FaMoon, FaSun, FaBars, FaSearch } from 'react-icons/fa';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useAuth } from '../../contexts/AuthContext'; // 🚨 Importamos useAuth
 import '../../styles/admin.css';
 
 // 🎯 Datos del menú con iconos
@@ -16,19 +16,25 @@ const initialNavItems = [
 const AdminLayout: React.FC<PropsWithChildren> = ({ children }) => {
     const navigate = useNavigate();
     const { theme, toggleTheme } = useTheme();
+    const { logout } = useAuth(); // 🚨 Obtenemos la función logout del contexto
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const [searchQuery, setSearchQuery] = useState(''); // 🆕 Estado para el buscador
+    const [searchQuery, setSearchQuery] = useState('');
 
-    const handleLogout = () => {
-        localStorage.removeItem('admin-token');
-        navigate('/admin/login');
+    // 🚨 Lógica de Logout con confirmación
+    const handleLogout = async () => {
+        const confirmLogout = window.confirm("¿Estás seguro de que quieres cerrar tu sesión?");
+
+        if (confirmLogout) {
+            await logout(); // 🚨 Llamamos a la función asíncrona del contexto
+            navigate('/admin/login', { replace: true });
+        }
     };
 
     const toggleMobileMenu = () => {
         setIsMobileMenuOpen(prev => !prev);
     }
 
-    // 🆕 Lógica de filtrado/búsqueda
+    // Lógica de filtrado/búsqueda
     const filteredNavItems = useMemo(() => {
         if (!searchQuery) return initialNavItems;
         return initialNavItems.filter(item =>
@@ -104,6 +110,7 @@ const AdminLayout: React.FC<PropsWithChildren> = ({ children }) => {
                             </button>
                         </div>
 
+                        {/* 🚨 Usamos handleLogout con confirmación */}
                         <button onClick={handleLogout}>
                             <FaSignOutAlt />
                             <span>Cerrar Sesión</span>
