@@ -25,6 +25,9 @@ import ProfileAdmin from './pages/admin/ProfileAdmin';
 import AdminLogin from './pages/admin/AdminLogin';
 import AuthLayout from './pages/AuthLayout';
 
+import { ThemeProvider } from './contexts/ThemeContext';
+
+
 import ProtectedRoute from './components/ProtectedRoute';
 
 import './App.css';
@@ -53,39 +56,41 @@ function App() {
     <Router>
       <TenantProvider>
         <AuthProvider>
-          <ScrollToTop />
-          {shouldShowHeaderFooter && <Header isScrolled={isScrolled} />}
-          <main>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/servicios" element={<Services />} />
-              <Route path="/tienda" element={<Store />} />
-              <Route path="/urgencias" element={<Emergency />} />
-              <Route path="/contacto" element={<Contact />} />
-              <Route path="/citas" element={<AppointmentPage />} />
+          <ThemeProvider>
+            <ScrollToTop />
+            {shouldShowHeaderFooter && <Header isScrolled={isScrolled} />}
+            <main>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/servicios" element={<Services />} />
+                <Route path="/tienda" element={<Store />} />
+                <Route path="/urgencias" element={<Emergency />} />
+                <Route path="/contacto" element={<Contact />} />
+                <Route path="/citas" element={<AppointmentPage />} />
 
-              <Route path="/login" element={<AuthLayout><Login /></AuthLayout>} />
-              <Route path="/register" element={<AuthLayout><Register /></AuthLayout>} />
+                <Route path="/login" element={<AuthLayout><Login /></AuthLayout>} />
+                <Route path="/register" element={<AuthLayout><Register /></AuthLayout>} />
 
-              {/* Rutas protegidas */}
-              <Route path="/admin/*" element={
-                <ProtectedRoute>
-                  <AdminLayout>
-                    <Routes>
-                      <Route path="dashboard" element={<Dashboard />} />
-                      <Route path="services" element={<ServicesAdmin />} />
-                      <Route path="profile" element={<ProfileAdmin />} />
-                    </Routes>
-                  </AdminLayout>
-                </ProtectedRoute>
-              } />
-              <Route path="/admin/login" element={<AuthLayout><AdminLogin /></AuthLayout>} />
-            </Routes>
-          </main>
-          {shouldShowHeaderFooter && <Footer />}
+                {/* Rutas protegidas */}
+                <Route path="/admin/*" element={
+                  <ProtectedRoute>
+                    <AdminLayout>
+                      <Routes>
+                        <Route path="dashboard" element={<Dashboard />} />
+                        <Route path="services" element={<ServicesAdmin />} />
+                        <Route path="profile" element={<ProfileAdmin />} />
+                      </Routes>
+                    </AdminLayout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin/login" element={<AuthLayout><AdminLogin /></AuthLayout>} />
+              </Routes>
+            </main>
+            {shouldShowHeaderFooter && <Footer />}
+          </ThemeProvider>
         </AuthProvider>
       </TenantProvider>
-    </Router>
+    </Router >
   );
 }
 

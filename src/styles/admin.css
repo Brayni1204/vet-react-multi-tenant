@@ -1,11 +1,42 @@
-/* Colores base */
-:root {
+/* src/styles/admin.css - Estilos Base, Dark Mode y Responsive */
+
+/* Colores Base (Light Mode por defecto) */
+:root,
+.light-mode {
+    --primary-color: #1D3557;
+    /* 🎯 Nuevo azul oscuro (Azul Medianoche) */
+    --secondary-color: #2ED197;
+
     --admin-bg-color: #f4f7f9;
-    --admin-sidebar-bg: #00457E;
+    --admin-sidebar-bg: var(--primary-color);
     --admin-sidebar-text: white;
-    --admin-highlight-color: #2ED197;
+    --admin-highlight-color: var(--secondary-color);
     --admin-card-bg: white;
     --admin-text-color: #333;
+    --admin-border-color: #ddd;
+    --admin-shadow: 0 8px 30px rgba(29, 53, 87, 0.1);
+    /* Sombra más profunda */
+    --admin-border-radius: 12px;
+    /* Borde redondeado general */
+}
+
+/* 🎯 Colores para Dark Mode */
+.dark-mode {
+    --admin-bg-color: #1a1a2e;
+    --admin-sidebar-bg: #16213e;
+    --admin-sidebar-text: #e0e0e0;
+    --admin-card-bg: #2b395e;
+    --admin-text-color: #c0c0c0;
+    --admin-border-color: #3f4a67;
+    --admin-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
+    /* Sombra más oscura */
+}
+
+body {
+    margin: 0px;
+    background-color: var(--admin-bg-color);
+    color: var(--admin-text-color);
+    transition: background-color 0.3s, color 0.3s;
 }
 
 /* Estructura general */
@@ -14,69 +45,333 @@
     min-height: 100vh;
 }
 
+/* ----------------------------------- */
+/* 🎯 SIDEBAR (Menu de Opciones)     */
+/* ----------------------------------- */
 .admin-sidebar {
     width: 250px;
     background-color: var(--admin-sidebar-bg);
     color: var(--admin-sidebar-text);
     padding: 2rem 0;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.3);
+    flex-shrink: 0;
+    transition: transform 0.3s ease-in-out;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
 }
 
+/* 🎯 Nuevo Logo/Enlace */
 .admin-logo {
     text-align: center;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
+    padding: 0 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 1.5rem;
 }
 
-.admin-logo h2 {
-    font-size: 2rem;
+.admin-logo .logo-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+}
+
+.admin-logo .clinic-logo {
+    width: 60px;
+    height: auto;
+    margin-bottom: 0.5rem;
+}
+
+.admin-logo .logo-text {
+    font-size: 1.5rem;
     color: var(--admin-sidebar-text);
+    margin: 0;
+}
+
+.admin-nav {
+    flex-grow: 1;
+    padding: 0 1rem;
 }
 
 .admin-nav ul {
     list-style: none;
     padding: 0;
+    margin: 0;
+}
+
+/* 🎯 Estilo mejorado de los enlaces del menú con bordes redondeados */
+.admin-nav li {
+    margin-bottom: 0.5rem;
 }
 
 .admin-nav li a {
-    display: block;
-    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    padding: 0.8rem 1rem;
     color: var(--admin-sidebar-text);
     text-decoration: none;
     font-weight: 500;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, color 0.3s, border-left 0.3s;
+    gap: 1rem;
+    border-radius: var(--admin-border-radius);
+    /* 🎯 Bordes redondeados */
 }
 
-.admin-nav li a:hover,
+.admin-nav li a svg {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.admin-nav li a:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* 🎯 Color de la opción activa (Border redondeado) */
 .admin-nav li a.active {
-    background-color: rgba(255, 255, 255, 0.1);
-    border-left: 5px solid var(--admin-highlight-color);
-    padding-left: 1.5rem;
+    background-color: var(--admin-highlight-color);
+    color: var(--primary-color);
+    font-weight: bold;
+    box-shadow: 0 2px 10px rgba(46, 209, 151, 0.4);
 }
 
+.admin-nav .no-results {
+    color: rgba(255, 255, 255, 0.7);
+    padding: 1rem;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+/* ----------------------------------- */
+/* 🎯 Buscador en Sidebar            */
+/* ----------------------------------- */
+.search-bar-sidebar {
+    display: flex;
+    align-items: center;
+    margin: 0 1rem 1rem;
+    padding: 0.5rem;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: var(--admin-border-radius);
+    color: var(--admin-sidebar-text);
+}
+
+.search-bar-sidebar svg {
+    margin-right: 0.5rem;
+    font-size: 1rem;
+}
+
+.search-bar-sidebar input {
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--admin-sidebar-text);
+    width: 100%;
+    padding: 0.2rem 0;
+}
+
+.search-bar-sidebar input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+
+/* ----------------------------------- */
+/* 🎯 Toggle de Tema y Logout        */
+/* ----------------------------------- */
+.sidebar-footer {
+    padding: 1rem 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: auto;
+}
+
+.sidebar-footer button {
+    margin-bottom: 0.5rem;
+    background: none;
+    border: none;
+    color: var(--admin-sidebar-text);
+    text-align: left;
+    padding: 0.75rem 0;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: color 0.3s;
+}
+
+.sidebar-footer button:hover {
+    color: var(--admin-highlight-color);
+}
+
+.theme-toggle-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    margin-bottom: 1rem;
+}
+
+.theme-toggle-btn {
+    background: none;
+    border: 2px solid var(--admin-sidebar-text);
+    color: var(--admin-sidebar-text);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.theme-toggle-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: var(--admin-highlight-color);
+}
+
+
+/* ----------------------------------- */
+/* 🎯 MOBILE/RESPONSIVE STYLES       */
+/* ----------------------------------- */
+
+/* Header Móvil */
+.mobile-header {
+    display: none;
+    padding: 1rem;
+    background-color: var(--admin-card-bg);
+    border-bottom: 1px solid var(--admin-border-color);
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+}
+
+.mobile-header .mobile-logo-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+}
+
+.mobile-header .mobile-logo-img {
+    width: 40px;
+    height: auto;
+    margin-right: 0.5rem;
+}
+
+.mobile-header h2 {
+    color: var(--primary-color);
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.menu-icon-button {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+}
+
+/* Estilos del Sidebar en móvil */
+@media (max-width: 768px) {
+    .admin-sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        height: 100%;
+        transform: translateX(-100%);
+        padding: 1rem 0;
+    }
+
+    .admin-sidebar.mobile-open {
+        transform: translateX(0);
+    }
+
+    .admin-content {
+        padding: 1rem;
+        width: 100%;
+    }
+
+    .mobile-header {
+        display: flex;
+    }
+
+    /* Ocultamos el logo de escritorio en móvil */
+    .admin-logo {
+        display: none;
+    }
+
+    /* Mantenemos el buscador en móvil */
+    .search-bar-sidebar {
+        margin-top: 0;
+        margin-bottom: 1rem;
+    }
+
+    /* Overlay para cerrar el menú al hacer clic fuera */
+    .off-canvas-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 998;
+    }
+}
+
+/* ----------------------------------- */
+/* 🎯 Adaptación de otros elementos  */
+/* ----------------------------------- */
 .admin-content {
     flex-grow: 1;
     padding: 2rem;
     background-color: var(--admin-bg-color);
 }
 
-/* Estilos para las páginas de administración */
 .dashboard-page,
 .services-admin-page,
 .profile-admin-page {
     background-color: var(--admin-card-bg);
     padding: 2rem;
-    border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    border-radius: var(--admin-border-radius);
+    /* 🎯 Bordes redondeados */
+    box-shadow: var(--admin-shadow);
+    transition: background-color 0.3s, box-shadow 0.3s;
 }
 
 .dashboard-page h2,
 .services-admin-page h2,
 .profile-admin-page h2 {
-    color: var(--admin-sidebar-bg);
+    color: var(--primary-color);
     margin-bottom: 1rem;
 }
 
-/* Estilos para la página de perfil (ProfileAdmin.tsx) */
+/* 🎯 Adaptar inputs y modales a Dark Mode */
+.dark-mode input,
+.dark-mode textarea,
+.dark-mode select {
+    background-color: #3b4c73;
+    color: var(--admin-text-color);
+    border: 1px solid var(--admin-border-color) !important;
+}
+
+.modal-content {
+    background: var(--admin-card-bg);
+    border-top: 5px solid var(--primary-color);
+}
+
+.modal-content h3 {
+    color: var(--admin-text-color);
+    border-bottom: 1px solid var(--admin-border-color);
+}
+
+/* Estilos para el perfil de la clínica */
 .profile-card {
     max-width: 600px;
     margin-top: 2rem;
@@ -89,38 +384,16 @@
 }
 
 .profile-details strong {
-    color: var(--admin-sidebar-bg);
-}
-
-.profile-actions {
-    margin-top: 1.5rem;
-    display: flex;
-    gap: 1rem;
-}
-
-.profile-edit-form .form-group {
-    margin-bottom: 1rem;
-}
-
-.profile-edit-form label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 0.5rem;
+    color: var(--primary-color);
 }
 
 .profile-edit-form input {
-    width: 100%;
-    padding: 0.8rem;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+    border: 1px solid var(--admin-border-color);
 }
 
 
-
-/* src/styles/admin.css - Estilos Adicionales */
-
 /* ----------------------------------- */
-/* 🎯 ESTILOS DEL MODAL (Nuevo)      */
+/* 🎯 ESTILOS DEL MODAL (ServicesAdmin.tsx) */
 /* ----------------------------------- */
 .modal-overlay {
     position: fixed;
@@ -132,39 +405,24 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
+    z-index: 2000;
+    /* Asegura que esté por encima de todo */
 }
 
 .modal-content {
-    background: #fff;
+    background: var(--admin-card-bg);
     padding: 30px;
-    border-radius: 10px;
+    border-radius: var(--admin-border-radius);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
     width: 90%;
     max-width: 500px;
     max-height: 90vh;
     overflow-y: auto;
     position: relative;
-    border-top: 5px solid var(--primary-color, #00457E);
 }
 
-.modal-content h3 {
-    margin-top: 0;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #eee;
-}
+/* ... (Resto de estilos de ServicesAdmin, etc., sin cambios ya que ya estaban enfocados en funcionalidad) */
 
-.modal-actions {
-    margin-top: 20px;
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-}
-
-.delete-image-btn {
-    margin-top: 10px;
-    padding: 5px 10px;
-}
 
 /* ----------------------------------- */
 /* 🎯 ESTILOS GENERALES DE ADMIN     */
@@ -176,8 +434,8 @@
 }
 
 .services-admin-page h2 {
-    color: var(--primary-color, #00457E);
-    border-bottom: 2px solid var(--secondary-color, #2ED197);
+    color: var(--primary-color);
+    border-bottom: 2px solid var(--secondary-color);
     padding-bottom: 10px;
     margin-bottom: 20px;
 }
@@ -192,29 +450,37 @@
 .services-list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
+    gap: 25px;
     margin-top: 20px;
 }
 
 .service-admin-item {
-    background: #fff;
-    border-radius: 8px;
+    background: var(--admin-card-bg);
+    border-radius: var(--admin-border-radius);
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    transition: transform 0.2s;
-    border: 1px solid #ddd;
+    transition: all 0.3s ease-in-out;
+    border: 1px solid var(--admin-border-color);
+    position: relative;
+}
+
+.inactive-card {
+    opacity: 0.7;
+    background-color: #f9f9f9;
+}
+
+.dark-mode .inactive-card {
+    background-color: #3f4a67;
 }
 
 .service-admin-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
-/* Contenedor para que la imagen sea cuadrada y esté recortada */
 .service-image-container {
     width: 100%;
-    /* Altura fija para hacer el contenedor cuadrado (16:9 si usas 56.25%) */
     padding-top: 66.66%;
     position: relative;
     overflow: hidden;
@@ -227,7 +493,6 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    /* 🎯 CRUCIAL: Recorta la imagen para que llene el contenedor */
     display: block;
 }
 
@@ -245,186 +510,6 @@
     font-style: italic;
 }
 
-.service-admin-info {
-    padding: 15px;
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-
-.service-admin-info h4 {
-    margin-top: 0;
-    color: var(--primary-color, #00457E);
-}
-
-.service-description {
-    font-size: 0.9em;
-    color: #555;
-    margin-bottom: 15px;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    /* Limitar a 3 líneas */
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-.service-admin-actions {
-    display: flex;
-    gap: 10px;
-    margin-top: 10px;
-    justify-content: flex-end;
-}
-
-/* Estilos de botones (adaptados para un mejor aspecto) */
-.btn {
-    padding: 8px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: background-color 0.2s, opacity 0.2s;
-}
-
-.btn.primary {
-    background-color: var(--primary-color, #00457E);
-    color: white;
-}
-
-.btn.secondary {
-    background-color: #f0f0f0;
-    color: #333;
-}
-
-.btn.danger {
-    background-color: #dc3545;
-    color: white;
-}
-
-.btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-.file-info {
-    font-size: 0.85em;
-    color: #666;
-    margin-top: 5px;
-}
-
-.empty-message {
-    grid-column: 1 / -1;
-    text-align: center;
-    color: #888;
-    padding: 20px;
-    border: 1px dashed #ccc;
-    border-radius: 5px;
-}
-
-/* src/styles/admin.css - Estilos Adicionales para Filtros y Tarjetas */
-
-/* ----------------------------------- */
-/* 🎯 ESTILOS DE CONTROLES Y FILTROS */
-/* ----------------------------------- */
-.admin-controls {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 25px;
-    flex-wrap: wrap;
-    gap: 20px;
-}
-
-.filter-group {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    flex-wrap: wrap;
-}
-
-.search-bar {
-    display: flex;
-    align-items: center;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 0 10px;
-    background-color: #fff;
-    width: 250px;
-}
-
-.search-bar svg {
-    color: #888;
-    margin-right: 8px;
-}
-
-.search-bar input {
-    border: none;
-    padding: 10px 0;
-    flex-grow: 1;
-    font-size: 1em;
-    outline: none;
-}
-
-.status-select {
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: #fff;
-    cursor: pointer;
-    font-size: 1em;
-}
-
-/* ----------------------------------- */
-/* 🎯 ESTILOS DE LA LISTA DE SERVICIOS */
-/* ----------------------------------- */
-.services-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 25px;
-    margin-top: 20px;
-}
-
-.service-admin-item {
-    background: #fff;
-    border-radius: 8px;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    transition: all 0.3s ease-in-out;
-    border: 1px solid #ddd;
-    position: relative;
-    /* Para la etiqueta de estado */
-}
-
-/* 🆕 Estilo para tarjeta inactiva */
-.inactive-card {
-    opacity: 0.6;
-    background-color: #f9f9f9;
-}
-
-.service-admin-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
-}
-
-.service-image-container {
-    width: 100%;
-    padding-top: 66.66%;
-    position: relative;
-    overflow: hidden;
-}
-
-.service-image-container img {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-}
-
-/* 🆕 Estilos de Etiquetas de Estado */
 .status-tag {
     position: absolute;
     top: 10px;
@@ -439,12 +524,10 @@
 
 .active-tag {
     background-color: #28a745;
-    /* Success green */
 }
 
 .inactive-tag {
     background-color: #ffc107;
-    /* Warning yellow/orange */
 }
 
 .service-admin-info {
@@ -457,18 +540,17 @@
 
 .service-admin-info h4 {
     margin-top: 0;
-    color: var(--primary-color, #00457E);
+    color: var(--primary-color);
 }
 
 .service-description {
     font-size: 0.9em;
-    color: #555;
+    color: var(--admin-text-color);
     margin-bottom: 15px;
     display: -webkit-box;
     -webkit-box-orient: vertical;
     overflow: hidden;
     height: 3.6em;
-    /* Altura aproximada de 3 líneas */
 }
 
 .service-admin-actions {
@@ -478,38 +560,54 @@
     justify-content: flex-end;
 }
 
-/* ----------------------------------- */
-/* 🎯 ESTILOS DEL MODAL Y FORMULARIO */
-/* ----------------------------------- */
-/* El modal-overlay y modal-content se mantienen */
-
-.image-preview-wrapper {
-    margin: 10px 0;
-    width: 100px;
-    height: 100px;
-    border: 1px solid #ccc;
+/* Estilos de botones */
+.btn {
+    padding: 8px 15px;
+    border: none;
     border-radius: 5px;
-    overflow: hidden;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.2s, opacity 0.2s;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.image-preview-wrapper img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+.btn.primary {
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 8px;
+    /* Aplicamos bordes a los botones */
 }
 
-/* Estilo para el botón de Activar */
+.btn.secondary {
+    background-color: #f0f0f0;
+    color: #333;
+    border-radius: 8px;
+}
+
+.btn.danger {
+    background-color: #dc3545;
+    color: white;
+    border-radius: 8px;
+}
+
 .btn.success {
     background-color: #28a745;
-    /* Verde de éxito */
     color: white;
+    border-radius: 8px;
 }
 
-.btn.success:hover {
-    background-color: #218838;
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 .btn span {
-    /* Estilos para los íconos */
     margin-right: 5px;
+}
+
+.search-bar {
+    border-radius: 8px;
 }
