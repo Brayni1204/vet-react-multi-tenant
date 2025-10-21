@@ -1,6 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import type { ReactNode } from 'react'; // Se corrige la importación de ReactNode
 import { useLocation } from 'react-router-dom';

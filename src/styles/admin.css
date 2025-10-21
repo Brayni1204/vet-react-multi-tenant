@@ -114,3 +114,402 @@
     border: 1px solid #ddd;
     border-radius: 5px;
 }
+
+
+
+/* src/styles/admin.css - Estilos Adicionales */
+
+/* ----------------------------------- */
+/* 🎯 ESTILOS DEL MODAL (Nuevo)      */
+/* ----------------------------------- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    border-top: 5px solid var(--primary-color, #00457E);
+}
+
+.modal-content h3 {
+    margin-top: 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.modal-actions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.delete-image-btn {
+    margin-top: 10px;
+    padding: 5px 10px;
+}
+
+/* ----------------------------------- */
+/* 🎯 ESTILOS GENERALES DE ADMIN     */
+/* ----------------------------------- */
+.services-admin-page {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.services-admin-page h2 {
+    color: var(--primary-color, #00457E);
+    border-bottom: 2px solid var(--secondary-color, #2ED197);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.services-list-container {
+    margin-top: 30px;
+}
+
+/* ----------------------------------- */
+/* 🎯 ESTILOS DE LA LISTA DE SERVICIOS */
+/* ----------------------------------- */
+.services-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.service-admin-item {
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s;
+    border: 1px solid #ddd;
+}
+
+.service-admin-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Contenedor para que la imagen sea cuadrada y esté recortada */
+.service-image-container {
+    width: 100%;
+    /* Altura fija para hacer el contenedor cuadrado (16:9 si usas 56.25%) */
+    padding-top: 66.66%;
+    position: relative;
+    overflow: hidden;
+}
+
+.service-image-container img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* 🎯 CRUCIAL: Recorta la imagen para que llene el contenedor */
+    display: block;
+}
+
+.no-image-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #888;
+    font-style: italic;
+}
+
+.service-admin-info {
+    padding: 15px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.service-admin-info h4 {
+    margin-top: 0;
+    color: var(--primary-color, #00457E);
+}
+
+.service-description {
+    font-size: 0.9em;
+    color: #555;
+    margin-bottom: 15px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    /* Limitar a 3 líneas */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.service-admin-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    justify-content: flex-end;
+}
+
+/* Estilos de botones (adaptados para un mejor aspecto) */
+.btn {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.2s, opacity 0.2s;
+}
+
+.btn.primary {
+    background-color: var(--primary-color, #00457E);
+    color: white;
+}
+
+.btn.secondary {
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+.btn.danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.file-info {
+    font-size: 0.85em;
+    color: #666;
+    margin-top: 5px;
+}
+
+.empty-message {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: #888;
+    padding: 20px;
+    border: 1px dashed #ccc;
+    border-radius: 5px;
+}
+
+/* src/styles/admin.css - Estilos Adicionales para Filtros y Tarjetas */
+
+/* ----------------------------------- */
+/* 🎯 ESTILOS DE CONTROLES Y FILTROS */
+/* ----------------------------------- */
+.admin-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 0 10px;
+    background-color: #fff;
+    width: 250px;
+}
+
+.search-bar svg {
+    color: #888;
+    margin-right: 8px;
+}
+
+.search-bar input {
+    border: none;
+    padding: 10px 0;
+    flex-grow: 1;
+    font-size: 1em;
+    outline: none;
+}
+
+.status-select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+    cursor: pointer;
+    font-size: 1em;
+}
+
+/* ----------------------------------- */
+/* 🎯 ESTILOS DE LA LISTA DE SERVICIOS */
+/* ----------------------------------- */
+.services-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+    margin-top: 20px;
+}
+
+.service-admin-item {
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease-in-out;
+    border: 1px solid #ddd;
+    position: relative;
+    /* Para la etiqueta de estado */
+}
+
+/* 🆕 Estilo para tarjeta inactiva */
+.inactive-card {
+    opacity: 0.6;
+    background-color: #f9f9f9;
+}
+
+.service-admin-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+.service-image-container {
+    width: 100%;
+    padding-top: 66.66%;
+    position: relative;
+    overflow: hidden;
+}
+
+.service-image-container img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* 🆕 Estilos de Etiquetas de Estado */
+.status-tag {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    font-weight: bold;
+    color: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.active-tag {
+    background-color: #28a745;
+    /* Success green */
+}
+
+.inactive-tag {
+    background-color: #ffc107;
+    /* Warning yellow/orange */
+}
+
+.service-admin-info {
+    padding: 15px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.service-admin-info h4 {
+    margin-top: 0;
+    color: var(--primary-color, #00457E);
+}
+
+.service-description {
+    font-size: 0.9em;
+    color: #555;
+    margin-bottom: 15px;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    height: 3.6em;
+    /* Altura aproximada de 3 líneas */
+}
+
+.service-admin-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    justify-content: flex-end;
+}
+
+/* ----------------------------------- */
+/* 🎯 ESTILOS DEL MODAL Y FORMULARIO */
+/* ----------------------------------- */
+/* El modal-overlay y modal-content se mantienen */
+
+.image-preview-wrapper {
+    margin: 10px 0;
+    width: 100px;
+    height: 100px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.image-preview-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Estilo para el botón de Activar */
+.btn.success {
+    background-color: #28a745;
+    /* Verde de éxito */
+    color: white;
+}
+
+.btn.success:hover {
+    background-color: #218838;
+}
+
+.btn span {
+    /* Estilos para los íconos */
+    margin-right: 5px;
+}

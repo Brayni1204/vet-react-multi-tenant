@@ -96,23 +96,23 @@ const ProfileAdmin: React.FC = () => {
                     <form onSubmit={handleSave} className="profile-edit-form">
                         <div className="form-group">
                             <label htmlFor="name">Nombre de la Clínica</label>
-                            <input type="text" name="name" value={profile.name} onChange={handleEditChange} required />
+                            <input type="text" name="name" id="name" value={profile.name} onChange={handleEditChange} required />
                         </div>
                         <div className="form-group">
                             <label htmlFor="address">Dirección</label>
-                            <input type="text" name="address" value={profile.address} onChange={handleEditChange} required />
+                            <input type="text" name="address" id="address" value={profile.address} onChange={handleEditChange} required />
                         </div>
                         <div className="form-group">
                             <label htmlFor="phone">Teléfono</label>
-                            <input type="text" name="phone" value={profile.phone} onChange={handleEditChange} required />
+                            <input type="text" name="phone" id="phone" value={profile.phone} onChange={handleEditChange} required />
                         </div>
                         <div className="form-group">
                             <label htmlFor="schedule">Horario</label>
-                            <input type="text" name="schedule" value={profile.schedule} onChange={handleEditChange} required />
+                            <input type="text" name="schedule" id="schedule" value={profile.schedule} onChange={handleEditChange} required />
                         </div>
                         <div className="form-group">
                             <label htmlFor="email">Correo Electrónico</label>
-                            <input type="email" name="email" value={profile.email} onChange={handleEditChange} required />
+                            <input type="email" name="email" id="email" value={profile.email} onChange={handleEditChange} required />
                         </div>
                         {fetchError && <div className="error-message">{fetchError}</div>}
                         <div className="profile-actions">
