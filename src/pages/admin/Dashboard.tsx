@@ -43,11 +43,9 @@ const Dashboard: React.FC = () => {
                 <p>Monitoreo de citas y rendimiento de servicios clave.</p>
 
                 <div style={{
-                    height: '350px',
+                    height: '200px',
                     backgroundColor: 'var(--admin-bg-color)',
                     borderRadius: 'var(--admin-border-radius)',
-                    padding: '20px',
-                    marginTop: '20px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',

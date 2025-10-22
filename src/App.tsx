@@ -1,7 +1,7 @@
 // src/App.tsx
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'; // 🚨 Importamos Navigate
-import TenantHeadManager from './contexts/TenantHeadManager';
+
 import { TenantProvider } from './contexts/TenantContext';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext'; // Asumiendo que ya fue implementado
@@ -30,6 +30,7 @@ import AuthLayout from './pages/AuthLayout';
 import ProtectedRoute from './components/ProtectedRoute';
 
 import './App.css';
+import TenantHeadManager from './components/TenantHeadManager';
 
 
 function App() {

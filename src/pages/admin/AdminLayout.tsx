@@ -10,7 +10,7 @@ import '../../styles/admin.css';
 
 // 🎯 Datos del menú con iconos
 const initialNavItems = [
-    { to: "/admin/dashboard", icon: <FaTachometerAlt />, label: "Dashboard" },
+    { to: "/admin/dashboard", icon: <FaTachometerAlt />, label: "Panel" },
     { to: "/admin/services", icon: <FaClipboardList />, label: "Servicios" },
     { to: "/admin/profile", icon: <FaClinicMedical />, label: "Mi Clínica" },
 ];
