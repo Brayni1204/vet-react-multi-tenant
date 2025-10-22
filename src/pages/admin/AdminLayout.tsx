@@ -1,9 +1,11 @@
 // src/pages/admin/AdminLayout.tsx
-import React, { type PropsWithChildren, useState, useMemo } from 'react';
+import React, { type PropsWithChildren, useState, useMemo, useCallback } from 'react';
 import { NavLink, useNavigate, Link } from 'react-router-dom';
 import { FaTachometerAlt, FaClipboardList, FaClinicMedical, FaSignOutAlt, FaMoon, FaSun, FaBars, FaSearch } from 'react-icons/fa';
 import { useTheme } from '../../contexts/ThemeContext';
-import { useAuth } from '../../contexts/AuthContext'; // 🚨 Importamos useAuth
+import { useAuth } from '../../contexts/AuthContext';
+// 🆕 Importamos useTenant
+import { useTenant } from '../../contexts/TenantContext';
 import '../../styles/admin.css';
 
 // 🎯 Datos del menú con iconos
@@ -16,16 +18,32 @@ const initialNavItems = [
 const AdminLayout: React.FC<PropsWithChildren> = ({ children }) => {
     const navigate = useNavigate();
     const { theme, toggleTheme } = useTheme();
-    const { logout } = useAuth(); // 🚨 Obtenemos la función logout del contexto
+    const { logout } = useAuth();
+    // 🆕 Obtenemos la data del tenant y el estado de carga
+    const { tenantData, loading, error } = useTenant();
+
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+
+    // 🆕 Helper para construir la URL absoluta del logo
+    const getAbsoluteUrl = useCallback((path: string) => {
+        if (!path) return '/icono.png'; // Fallback a un ícono local si no hay URL
+        // El TenantContext ya resuelve esto en muchos casos, pero si devuelve una ruta relativa:
+        const hostname = window.location.hostname;
+        return path.startsWith('http') ? path : `http://${hostname}:4000${path}`;
+    }, []);
+
+    // 🆕 Definimos valores dinámicos o de fallback
+    const clinicName = tenantData?.name || 'Cargando Veterinaria...';
+    // Usamos el logoUrl del tenantData y lo convertimos a una URL absoluta
+    const logoSrc = getAbsoluteUrl(tenantData?.logoUrl || '/icono.png');
 
     // 🚨 Lógica de Logout con confirmación
     const handleLogout = async () => {
         const confirmLogout = window.confirm("¿Estás seguro de que quieres cerrar tu sesión?");
 
         if (confirmLogout) {
-            await logout(); // 🚨 Llamamos a la función asíncrona del contexto
+            await logout();
             navigate('/admin/login', { replace: true });
         }
     };
@@ -42,14 +60,30 @@ const AdminLayout: React.FC<PropsWithChildren> = ({ children }) => {
         );
     }, [searchQuery]);
 
+    // 🆕 Manejo del estado de carga y error
+    if (loading) {
+        return (
+            <div className="loading-screen" style={{ padding: '20px', textAlign: 'center' }}>
+                Cargando datos de la clínica...
+            </div>
+        );
+    }
+
+    if (error || !tenantData) {
+        return (
+            <div className="error-screen" style={{ padding: '20px', textAlign: 'center', color: 'red' }}>
+                Error al cargar la configuración de la clínica: {error}
+            </div>
+        );
+    }
 
     return (
         <>
             {/* Header para Móviles */}
             <header className="mobile-header">
-                {/* 🎯 Logo en móvil también lleva a la ruta pública */}
+                {/* 🎯 Logo en móvil: Dinámico */}
                 <Link to="/" className="mobile-logo-link">
-                    <img src="/icono.png" alt="Logo" className="mobile-logo-img" />
+                    <img src={logoSrc} alt={`${clinicName} Logo`} className="mobile-logo-img" />
                     <h2>Admin</h2>
                 </Link>
                 <button className="menu-icon-button" onClick={toggleMobileMenu} aria-label="Abrir menú">
@@ -60,11 +94,13 @@ const AdminLayout: React.FC<PropsWithChildren> = ({ children }) => {
             <div className="admin-layout">
                 <aside className={`admin-sidebar ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
 
-                    {/* 🎯 Nuevo Logo/Enlace a ruta pública */}
+                    {/* 🎯 Logo/Enlace a ruta pública: Dinámico */}
                     <div className="admin-logo">
                         <Link to="/" className="logo-link" onClick={isMobileMenuOpen ? toggleMobileMenu : undefined}>
-                            <img src="/icono.png" alt="Vet-Tenant Logo" className="clinic-logo" />
-                            <h2 className="logo-text">Veterinaria Chavez</h2>
+                            {/* 🆕 Usamos el logo dinámico (resuelto a URL absoluta) */}
+                            <img src={logoSrc} alt={`${clinicName} Logo`} className="clinic-logo" />
+                            {/* 🆕 Usamos el nombre dinámico */}
+                            <h2 className="logo-text">{clinicName}</h2>
                         </Link>
                     </div>
 
