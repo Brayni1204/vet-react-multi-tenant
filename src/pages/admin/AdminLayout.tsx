@@ -94,16 +94,6 @@ const AdminLayout: React.FC<PropsWithChildren> = ({ children }) => {
             <div className="admin-layout">
                 <aside className={`admin-sidebar ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
 
-                    {/* 🎯 Logo/Enlace a ruta pública: Dinámico */}
-                    <div className="admin-logo">
-                        <Link to="/" className="logo-link" onClick={isMobileMenuOpen ? toggleMobileMenu : undefined}>
-                            {/* 🆕 Usamos el logo dinámico (resuelto a URL absoluta) */}
-                            <img src={logoSrc} alt={`${clinicName} Logo`} className="clinic-logo" />
-                            {/* 🆕 Usamos el nombre dinámico */}
-                            <h2 className="logo-text">{clinicName}</h2>
-                        </Link>
-                    </div>
-
                     {/* 🎯 Nuevo Buscador de Opciones */}
                     <div className="search-bar-sidebar">
                         <FaSearch />

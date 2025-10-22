@@ -981,7 +981,6 @@ body {
     color: #555;
     margin-bottom: 15px;
     display: -webkit-box;
-    -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
     height: 3.6em;
