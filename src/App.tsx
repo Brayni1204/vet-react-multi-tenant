@@ -1,6 +1,7 @@
 // src/App.tsx
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'; // 🚨 Importamos Navigate
+import TenantHeadManager from './contexts/TenantHeadManager';
 import { TenantProvider } from './contexts/TenantContext';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext'; // Asumiendo que ya fue implementado
@@ -30,6 +31,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 
 import './App.css';
 
+
 function App() {
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -53,6 +55,9 @@ function App() {
   return (
     <Router>
       <TenantProvider>
+        {/* 🆕 Colocamos el gestor de Head aquí para que tenga acceso al contexto del Tenant */}
+        <TenantHeadManager />
+
         <AuthProvider>
           <ThemeProvider>
             <ScrollToTop />
