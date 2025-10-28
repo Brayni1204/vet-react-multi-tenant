@@ -1,201 +1,397 @@
-// src/pages/admin/StaffAdmin.tsx (Corregido)
-import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
-import { useAuth, type User } from '../../contexts/AuthContext';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// src/pages/admin/StaffAdmin.tsx
+import React, { useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { useTenant } from '../../contexts/TenantContext';
-import { FaUserPlus, FaTrash, FaPen, FaUsers } from 'react-icons/fa';
+// Asegúrate de que el archivo CSS exista y esté importado
 import '../../styles/admin.css';
-// Interfaz para el estado del formulario de nuevo personal
-interface NewStaffForm {
-    name: string;
-    email: string;
-    password?: string;
-    role: 'doctor' | 'receptionist' | 'admin';
-}
-const StaffAdmin: React.FC = () => {
-    // Obtenemos user y token del contexto de Auth
-    const { user, token } = useAuth();
-    // 🎯 OBTENEMOS tenantData (que contiene el ID numérico y el slug)
-    const { tenantData } = useTenant();
 
-    const [staffList, setStaffList] = useState<User[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [isCreating, setIsCreating] = useState(false);
-    const [newStaff, setNewStaff] = useState<NewStaffForm>({
-        name: '',
+// 1. INTERFACES (Adaptadas para el personal/staff)
+interface Staff {
+    id: number;
+    tenant_id: string; // Slug del inquilino
+    email: string;
+    name: string;
+    is_admin: boolean;
+    role: 'admin' | 'doctor' | 'receptionist';
+}
+
+interface StaffForm {
+    email: string;
+    password?: string; // Opcional en edición, Requerido en creación
+    name: string;
+    role: 'admin' | 'doctor' | 'receptionist';
+}
+
+type FilterRole = 'all' | 'admin' | 'doctor' | 'receptionist';
+
+
+// Componentes de Iconos (Simulación de librería de iconos)
+const IconEdit = () => <span role="img" aria-label="Editar">✏️</span>;
+const IconDelete = () => <span role="img" aria-label="Eliminar">🗑️</span>;
+const IconAdd = () => <span role="img" aria-label="Agregar">➕</span>;
+const IconSearch = () => <span role="img" aria-label="Buscar">🔍</span>;
+const IconRole = () => <span role="img" aria-label="Rol">🧑‍💼</span>;
+
+
+const StaffAdmin: React.FC = () => {
+    const { tenantData, loading: tenantLoading, error: tenantError } = useTenant();
+    const [staffList, setStaffList] = useState<Staff[]>([]);
+
+    const [formState, setFormState] = useState<StaffForm>({
         email: '',
         password: '',
+        name: '',
         role: 'receptionist'
     });
+    const [isEditing, setIsEditing] = useState<number | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [fetchError, setFetchError] = useState<string | null>(null);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [filterRole, setFilterRole] = useState<FilterRole>('all');
+
+    const token = localStorage.getItem('admin-token');
     const hostname = window.location.hostname;
-    // 🎯 FUNCIÓN CORREGIDA para alinearse con ServicesAdmin.tsx: Usa tenantData.id (ID numérico)
+
+    // Helper para construir la URL base del API (usando tenantData.id, que es el SLUG)
     const getBaseUrl = useCallback(() => {
-        // Usamos el ID numérico del tenant, que es lo que espera el router de Express en :tenantId
-        const tenantIdForUrl = tenantData?.id;
-        if (!tenantIdForUrl) return '';
-        // Genera: http://[hostname]:4000/api/tenants/[ID_NUMÉRICO]
-        return `http://${hostname}:4000/api/tenants/${tenantIdForUrl}`;
+        if (!tenantData?.id) return '';
+        // ⚠️ IMPORTANTE: Aquí se pasa el SLUG (e.g., 'chavez') que el backend espera.
+        return `http://${hostname}:4000/api/tenants/${tenantData.id}`;
     }, [tenantData, hostname]);
-    // Helper para construir la URL del recurso de staff
-    const getStaffUrl = useCallback(() => {
-        return `${getBaseUrl()}/staff`; // Genera: .../api/tenants/[ID_NUMÉRICO]/staff
-    }, [getBaseUrl]);
+
+
+    // 🎯 1. FETCH para obtener la lista de personal
     const fetchStaff = useCallback(async () => {
-        // Verificar si tenemos el ID numérico antes de intentar la llamada
-        if (!token || !tenantData?.id) {
-            setLoading(false);
-            return;
-        }
-        setLoading(true);
-        setError(null);
+        if (!tenantData?.id) return;
+        setIsLoading(true);
+        setFetchError(null);
+
+        // Se usa el slug en la URL, tal como ServicesAdmin.tsx hace:
+        const url = `${getBaseUrl()}/staff`;
+
         try {
-            const url = getStaffUrl();
             const response = await fetch(url, {
-                headers: { 'Authorization': `Bearer ${token}` }
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
             });
             const data = await response.json();
-            if (!response.ok) {
-                throw new Error(data.message || 'Error al obtener personal.');
+
+            if (response.ok) {
+                let filteredStaff = data.users || [];
+
+                // Aplicar filtros de frontend (ya que el backend no los soporta aún)
+                if (filterRole !== 'all') {
+                    filteredStaff = filteredStaff.filter((s: Staff) => s.role === filterRole);
+                }
+                if (searchQuery) {
+                    const searchLower = searchQuery.toLowerCase();
+                    filteredStaff = filteredStaff.filter((s: Staff) =>
+                        s.name.toLowerCase().includes(searchLower) ||
+                        s.email.toLowerCase().includes(searchLower)
+                    );
+                }
+
+                setStaffList(filteredStaff);
+
+            } else {
+                // Manejar error 404, 401, etc.
+                throw new Error(data.message || 'No se pudo cargar la lista de personal.');
             }
-            setStaffList(data.users.filter((u: User) => u.role !== 'client'));
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } catch (err: any) {
-            setError(err.message);
+        } catch (err) {
+            setFetchError(err instanceof Error ? err.message : 'Error al cargar personal.');
         } finally {
-            setLoading(false);
+            setIsLoading(false);
         }
-    }, [token, tenantData?.id, getStaffUrl]);
+    }, [tenantData, token, getBaseUrl, filterRole, searchQuery]); // Dependencias para re-fetch
 
+    // Efecto para recargar al cambiar filtros
     useEffect(() => {
-        fetchStaff();
-    }, [fetchStaff]);
+        if (tenantData) {
+            const handler = setTimeout(() => {
+                fetchStaff();
+            }, 300);
 
-    const handleCreateStaff = async (e: FormEvent) => {
+            return () => clearTimeout(handler);
+        }
+    }, [filterRole, searchQuery, tenantData, fetchStaff]);
+
+
+    const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setFormState(prevState => ({ ...prevState, [name]: value }));
+    };
+
+    const handleCancel = () => {
+        setIsEditing(null);
+        setIsModalOpen(false);
+        setFormState({ email: '', password: '', name: '', role: 'receptionist' });
+        setFetchError(null);
+    }
+
+    // 🎯 2. CREAR o EDITAR Personal (POST / PUT)
+    const handleFormSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setError(null);
-        setIsCreating(true);
-        if (!newStaff.password) {
-            setError("La contraseña es obligatoria.");
-            setIsCreating(false);
+        setIsLoading(true);
+        setFetchError(null);
+
+        if (!tenantData?.id) {
+            setFetchError("ID de inquilino no disponible.");
+            setIsLoading(false);
             return;
         }
+
+        const method = isEditing ? 'PUT' : 'POST';
+        // Asumiendo una ruta PUT para edición: /staff/:staffId
+        const url = isEditing
+            ? `${getBaseUrl()}/staff/${isEditing}`
+            : `${getBaseUrl()}/staff`;
+
+        if (method === 'POST' && !formState.password) {
+            setFetchError('La contraseña es obligatoria para el nuevo personal.');
+            setIsLoading(false);
+            return;
+        }
+
+        // Simulación: Si es edición y no se cambia la contraseña, no la enviamos.
+        const body: any = {
+            email: formState.email,
+            name: formState.name,
+            role: formState.role,
+        };
+        if (formState.password) {
+            body.password = formState.password;
+        }
+
         try {
-            // 🎯 Usamos la URL CORREGIDA
-            const url = getStaffUrl();
             const response = await fetch(url, {
-                method: 'POST',
+                method,
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify(newStaff)
+                body: JSON.stringify(body)
             });
-            const data = await response.json();
+
             if (!response.ok) {
-                throw new Error(data.message || 'Error al crear personal');
+                const errorData = await response.json();
+                throw new Error(errorData.message || `No se pudo ${isEditing ? 'actualizar' : 'crear'} el personal.`);
             }
-            // Éxito: actualizar la lista y limpiar el formulario
-            alert(`Personal ${data.user.name} creado exitosamente como ${data.user.role}!`);
+
+            handleCancel();
             fetchStaff();
-            setNewStaff({ name: '', email: '', password: '', role: 'receptionist' });
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } catch (err: any) {
-            setError(err.message);
+
+        } catch (err) {
+            setFetchError(err instanceof Error ? err.message : 'Ocurrió un error inesperado.');
         } finally {
-            setIsCreating(false);
+            setIsLoading(false);
         }
     };
-    // 🔒 Control de acceso a la vista: Solo Admin puede verla
-    if (loading) return <div className="loading-screen">Cargando Personal...</div>;
-    // Si la carga falló (por ejemplo, el tenantData no estaba disponible), mostramos el error general
-    if (error) return <div className="error-message">Error: {error}</div>;
-    // Usamos 'admin' como el rol que tiene control total
-    if (user?.role !== 'admin') {
-        // Si permitieras a Recepcionistas ver la lista, podrías cambiar esta condición.
-        return <div className="permission-denied">Acceso denegado. Solo administradores pueden gestionar el personal.</div>;
+
+    // 🎯 3. ELIMINAR Personal (DELETE /staff/:staffId)
+    const handleDeleteStaff = async (staffId: number, name: string) => {
+        const confirmMessage = `¿Estás seguro de que quieres eliminar al personal: ${name}?`;
+
+        if (!window.confirm(confirmMessage)) return;
+
+        if (!tenantData?.id) return;
+        setFetchError(null);
+
+        const url = `${getBaseUrl()}/staff/${staffId}`;
+
+        try {
+            const response = await fetch(url, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                }
+            });
+            if (response.ok) {
+                fetchStaff();
+            } else {
+                const errorData = await response.json();
+                throw new Error(errorData.message || `No se pudo eliminar el personal.`);
+            }
+        } catch (err) {
+            setFetchError(err instanceof Error ? err.message : `Error al eliminar el personal.`);
+        }
+    };
+
+    const handleEditClick = (staff: Staff) => {
+        setFormState({
+            email: staff.email,
+            password: '', // Dejar en blanco para que el usuario no cambie si no quiere
+            name: staff.name,
+            role: staff.role
+        });
+        setIsEditing(staff.id);
+        setIsModalOpen(true);
+    };
+
+    const handleCreateClick = () => {
+        setIsEditing(null);
+        setFormState({ email: '', password: '', name: '', role: 'receptionist' });
+        setIsModalOpen(true);
     }
-    const canManage = user.role === 'admin';
-    return (
-        <div className="admin-content-area">
-            <h3><FaUsers /> Gestión de Personal</h3>
-            {error && <div className="error-message">{error}</div>}
-            {/* 🎯 Formulario de Creación de Personal - Solo si es Admin */}
-            {canManage && (
-                <div className="card staff-creation">
-                    <h4><FaUserPlus /> Crear Nuevo Empleado</h4>
-                    <form onSubmit={handleCreateStaff} style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-                        <input
-                            type="text"
-                            placeholder="Nombre"
-                            value={newStaff.name}
-                            onChange={(e) => setNewStaff({ ...newStaff, name: e.target.value })}
-                            required
-                            style={{ flex: '1 1 45%' }}
-                        />
+
+    if (tenantLoading) return <div>Cargando datos de la clínica...</div>;
+    if (tenantError || !tenantData) return <div>{tenantError || "No se pudo cargar la información de la clínica."}</div>;
+
+    // 🆕 Componente Modal
+    const ModalForm = isModalOpen ? (
+        <div className="modal-overlay">
+            <div className="modal-content">
+                <h3>{isEditing ? 'Editar Personal' : 'Agregar Nuevo Personal'}</h3>
+                {fetchError && <div className="error-message">{fetchError}</div>}
+                <form onSubmit={handleFormSubmit}>
+
+                    <div className="form-group">
+                        <label htmlFor="email">Email</label>
                         <input
                             type="email"
-                            placeholder="Email"
-                            value={newStaff.email}
-                            onChange={(e) => setNewStaff({ ...newStaff, email: e.target.value })}
+                            name="email"
+                            id="email"
+                            value={formState.email}
+                            onChange={handleFormChange}
                             required
-                            style={{ flex: '1 1 45%' }}
+                            // Solo se permite cambiar el email al crear
+                            disabled={!!isEditing}
                         />
+                    </div>
+
+                    <div className="form-group">
+                        <label htmlFor="password">Contraseña {isEditing ? '(dejar en blanco para no cambiar)' : ''}</label>
                         <input
                             type="password"
-                            placeholder="Contraseña (temporal)"
-                            value={newStaff.password}
-                            onChange={(e) => setNewStaff({ ...newStaff, password: e.target.value })}
-                            required
-                            style={{ flex: '1 1 45%' }}
+                            name="password"
+                            id="password"
+                            value={formState.password || ''} // Mostrar vacío para edición
+                            onChange={handleFormChange}
+                            required={!isEditing} // Requerido solo para creación
                         />
-                        <select
-                            value={newStaff.role}
-                            onChange={(e) => setNewStaff({ ...newStaff, role: e.target.value as NewStaffForm['role'] })}
-                            style={{ flex: '1 1 45%' }}
-                            disabled={!canManage}
-                        >
+                    </div>
+
+                    <div className="form-group">
+                        <label htmlFor="name">Nombre</label>
+                        <input type="text" name="name" id="name" value={formState.name} onChange={handleFormChange} required />
+                    </div>
+
+                    <div className="form-group">
+                        <label htmlFor="role">Rol</label>
+                        <select name="role" id="role" value={formState.role} onChange={handleFormChange} required className="role-select">
                             <option value="receptionist">Recepcionista</option>
-                            <option value="doctor">Médico</option>
-                            {canManage && <option value="admin">Administrador</option>}
+                            <option value="doctor">Doctor</option>
+                            {/* Opcional: Permitir solo a los super admins crear otros admins */}
+                            <option value="admin">Administrador</option>
                         </select>
-                        <button type="submit" disabled={isCreating || !canManage} className="btn-primary" style={{ flex: '1 1 100%' }}>
-                            {isCreating ? 'Creando...' : 'Crear Personal'}
-                        </button>
-                    </form>
-                </div>
-            )}
-            {/* 🎯 Lista de Personal */}
-            <div className="card staff-list">
-                <h4>Personal Registrado ({staffList.length})</h4>
-                <table className="data-table">
-                    <thead>
-                        <tr>
-                            <th>Nombre</th>
-                            <th>Email</th>
-                            <th>Rol</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {staffList.map((staffMember) => (
-                            <tr key={staffMember.id}>
-                                <td>{staffMember.name}</td>
-                                <td>{staffMember.email}</td>
-                                <td>
-                                    <strong>{staffMember.role}</strong>
-                                </td>
-                                <td>
-                                    {/* ⚠️ Acciones de edición/eliminación (solo si es admin y no es uno mismo) */}
-                                    <button className="btn-icon" title="Editar" disabled={!canManage}><FaPen /></button>
-                                    {user && user.id !== staffMember.id && canManage && (
-                                        <button className="btn-icon btn-danger" title="Eliminar"><FaTrash /></button>
-                                    )}
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+                    </div>
+
+                    <div className="admin-actions modal-actions">
+                        <button type="submit" className="btn primary" disabled={isLoading}>{isLoading ? 'Guardando...' : 'Guardar'}</button>
+                        <button type="button" className="btn secondary" onClick={handleCancel} disabled={isLoading}>Cancelar</button>
+                    </div>
+                </form>
             </div>
+        </div>
+    ) : null;
+
+    // Renderizamos el modal usando un Portal
+    const ModalPortal = isModalOpen
+        ? createPortal(ModalForm, document.body)
+        : null;
+
+
+    return (
+        <div className="staff-admin-page">
+            <h2>Personal de {tenantData.name}</h2>
+
+            <div className="admin-controls">
+                <button className="btn primary" onClick={handleCreateClick}>
+                    <IconAdd /> Agregar Nuevo Personal
+                </button>
+
+                {/* Controles de Filtrado y Búsqueda */}
+                <div className="filter-group">
+                    <div className="search-bar">
+                        <IconSearch />
+                        <input
+                            type="text"
+                            placeholder="Buscar por Nombre o Email..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                    </div>
+
+                    <select
+                        value={filterRole}
+                        onChange={(e) => setFilterRole(e.target.value as FilterRole)}
+                        className="role-select"
+                    >
+                        <option value="all">Todos los Roles</option>
+                        <option value="admin">Administradores</option>
+                        <option value="doctor">Doctores</option>
+                        <option value="receptionist">Recepcionistas</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <div className="staff-list-container">
+                <h3>Personal Encontrado ({staffList.length})</h3>
+                {isLoading && <p>Cargando personal...</p>}
+                {fetchError && <div className="error-message">Error: {fetchError}</div>}
+
+                {staffList.length > 0 && (
+                    <table className="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Email</th>
+                                <th>Rol</th>
+                                <th>Admin</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {staffList.map(staff => (
+                                <tr key={staff.id}>
+                                    <td>{staff.id}</td>
+                                    <td>{staff.name}</td>
+                                    <td>{staff.email}</td>
+                                    <td>
+                                        <span className={`role-tag ${staff.role}-tag`}>
+                                            <IconRole /> {staff.role}
+                                        </span>
+                                    </td>
+                                    <td>{staff.is_admin ? 'Sí' : 'No'}</td>
+                                    <td className="actions-cell">
+                                        <button className="btn secondary small" onClick={() => handleEditClick(staff)}>
+                                            <IconEdit /> Editar
+                                        </button>
+                                        <button
+                                            className="btn danger small"
+                                            onClick={() => handleDeleteStaff(staff.id, staff.name)}
+                                            // Simulación de prevención de auto-eliminación
+                                            disabled={staff.id === 1}
+                                        >
+                                            <IconDelete /> Eliminar
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                )}
+
+                {staffList.length === 0 && !isLoading && !fetchError && (
+                    <p className="empty-message">No se encontró personal con los filtros aplicados.</p>
+                )}
+            </div>
+
+            {ModalPortal}
         </div>
     );
 };

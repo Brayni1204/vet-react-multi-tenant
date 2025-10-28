@@ -227,10 +227,12 @@ body {
     cursor: pointer;
     transition: background-color 0.3s, border-color 0.3s;
 }
+
 .theme-toggle-btn:hover {
     background-color: rgba(255, 255, 255, 0.1);
     border-color: var(--admin-highlight-color);
 }
+
 /* ----------------------------------- */
 /* 🎯 MOBILE/RESPONSIVE STYLES       */
 /* ----------------------------------- */
@@ -284,25 +286,31 @@ body {
         transform: translateX(-100%);
         padding: 0.5rem 0;
     }
+
     .admin-sidebar.mobile-open {
         transform: translateX(0);
     }
+
     .admin-content {
         padding: 1rem;
         width: 100%;
     }
+
     .mobile-header {
         display: flex;
     }
+
     /* Ocultamos el logo de escritorio en móvil */
     .admin-logo {
         display: none;
     }
+
     /* Mantenemos el buscador en móvil */
     .search-bar-sidebar {
         margin-top: 0;
         margin-bottom: 1rem;
     }
+
     /* Overlay para cerrar el menú al hacer clic fuera */
     .off-canvas-overlay {
         position: fixed;
@@ -318,12 +326,12 @@ body {
         margin-bottom: 0.5rem;
     }
 }
+
 /* ----------------------------------- */
 /* 🎯 Adaptación de otros elementos  */
 /* ----------------------------------- */
 .admin-content {
     flex-grow: 1;
-    padding: 2rem;
     background-color: var(--admin-bg-color);
 }
 
@@ -608,29 +616,6 @@ body {
 /* ----------------------------------- */
 /* ESTILOS DE VISTAS ADMIN (GENERALES) */
 /* ----------------------------------- */
-.admin-content {
-    flex-grow: 1;
-    padding: 2rem;
-    background-color: var(--admin-bg-color);
-}
-
-.dashboard-page,
-.services-admin-page,
-.profile-admin-page {
-    background-color: var(--admin-card-bg);
-    padding: 2rem;
-    border-radius: var(--admin-border-radius);
-    /* Aplicado */
-    box-shadow: var(--admin-shadow);
-    transition: background-color 0.3s, box-shadow 0.3s;
-}
-
-.dashboard-page h2,
-.services-admin-page h2,
-.profile-admin-page h2 {
-    color: var(--primary-color);
-    margin-bottom: 1rem;
-}
 
 /* Mensaje de error para formularios */
 .error-message {
