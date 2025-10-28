@@ -1,69 +1,61 @@
 // src/pages/admin/AdminLogin.tsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext'; // 🚨 Importar useAuth
+// 🚨 Importar useAuth, AÑADIENDO `logout`
+import { useAuth } from '../../contexts/AuthContext';
 import '../../styles/auth.css';
-
+// Nota: No necesitamos definir API_BASE_URL aquí; el AuthContext lo maneja.
 const AdminLogin: React.FC = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [loginError, setLoginError] = useState<string | null>(null); // 🆕 Nuevo estado de error
-    const [isLoading, setIsLoading] = useState(false); // 🆕 Estado de carga
-
+    const [loginError, setLoginError] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
-    const { isAuthenticated, login } = useAuth(); // 🚨 Usamos el hook de Auth
-
-    // 🚨 EFECTO CLAVE: Redirige si el usuario ya está autenticado
+    // 🎯 CORRECCIÓN: Agregamos `logout` a la desestructuración
+    const { isAuthenticated, login, user, logout } = useAuth();
+    // 🚨 EFECTO CLAVE: Redirige si el usuario ya está autenticado Y es personal
+    // Ahora usa el rol para la redirección.
     useEffect(() => {
-        if (isAuthenticated) {
+        if (isAuthenticated && user && user.role !== 'client') {
             navigate('/admin/dashboard', { replace: true });
         }
-    }, [isAuthenticated, navigate]);
-
+    }, [isAuthenticated, navigate, user]);
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoginError(null);
         setIsLoading(true);
-
         try {
-            const hostname = window.location.hostname;
-            const targetUrl = `http://${hostname}:4000/api/auth/admin/login`;
-
-            const response = await fetch(targetUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password }),
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                // 🚨 Usamos la función de login del contexto
-                login(data.token);
-                // navigate a /admin/dashboard se manejará automáticamente por el useEffect
-
-            } else {
-                const errorData = await response.json();
-                setLoginError(errorData.message || 'Credenciales incorrectas. Intenta de nuevo.');
-            }
-        } catch (error) {
-            console.error('Error de autenticación:', error);
-            setLoginError('Ocurrió un error al intentar iniciar sesión. Verifica la conexión con el servidor.');
+            await login(email, password, true);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (error: any) {
+            // El error es lanzado por AuthContext, lo capturamos aquí
+            setLoginError(error.message || 'Error de autenticación. Verifica email y contraseña.');
         } finally {
             setIsLoading(false);
         }
     };
-
     // Si está autenticado, no renderizamos el formulario (la redirección ocurrirá en el useEffect)
-    if (isAuthenticated) {
-        return <div>Redirigiendo...</div>;
+    if (isAuthenticated && user?.role !== 'client') {
+        return <div>Redirigiendo al panel administrativo...</div>;
+    }
+    // Si está autenticado pero como cliente, lo tratamos como un error de acceso
+    if (isAuthenticated && user?.role === 'client') {
+        // Podrías redirigir al login público o mostrar un mensaje de error.
+        return <div className="auth-container">
+            <div className="auth-card">
+                <div className="error-message">Acceso denegado. Estás logueado como cliente.</div>
+                {/* 🎯 Botón para cerrar sesión si es cliente (ahora que `logout` está definido) */}
+                <button onClick={logout} className="btn block">Cerrar Sesión</button>
+            </div>
+        </div>
     }
 
     return (
         <div className="auth-container">
             <div className="auth-card">
-                <h2>Acceso de Administrador</h2>
+                <h2>Acceso de Personal</h2>
                 <form onSubmit={handleSubmit}>
-                    {loginError && <div className="error-message">{loginError}</div>} {/* Mostrar error */}
+                    {loginError && <div className="error-message">{loginError}</div>}
                     <div className="form-group">
                         <label htmlFor="email">Correo electrónico</label>
                         <input

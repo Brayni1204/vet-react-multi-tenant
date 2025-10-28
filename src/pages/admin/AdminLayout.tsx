@@ -1,47 +1,34 @@
-// src/pages/admin/AdminLayout.tsx
-import React, { type PropsWithChildren, useState, useMemo, useCallback } from 'react';
-import { NavLink, useNavigate, Link } from 'react-router-dom';
-import { FaTachometerAlt, FaClipboardList, FaClinicMedical, FaSignOutAlt, FaMoon, FaSun, FaBars, FaSearch } from 'react-icons/fa';
+// src/pages/admin/AdminLayout.tsx (Modificado)
+import React, { type PropsWithChildren, useState, useMemo } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
+// 🆕 Importamos FaUsers
+import { FaTachometerAlt, FaClipboardList, FaClinicMedical, FaSignOutAlt, FaMoon, FaSun, FaBars, FaSearch, FaUsers } from 'react-icons/fa';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
-// 🆕 Importamos useTenant
 import { useTenant } from '../../contexts/TenantContext';
 import '../../styles/admin.css';
 
-// 🎯 Datos del menú con iconos
+// 🎯 Datos del menú con iconos (AÑADIMOS 'staff')
 const initialNavItems = [
     { to: "/admin/dashboard", icon: <FaTachometerAlt />, label: "Panel" },
     { to: "/admin/services", icon: <FaClipboardList />, label: "Servicios" },
     { to: "/admin/profile", icon: <FaClinicMedical />, label: "Mi Clínica" },
+    // 🆕 Añadir la ruta de gestión de personal - Su visibilidad se controlará más abajo
+    { to: "/admin/staff", icon: <FaUsers />, label: "Gestión de Personal" },
 ];
 
 const AdminLayout: React.FC<PropsWithChildren> = ({ children }) => {
     const navigate = useNavigate();
     const { theme, toggleTheme } = useTheme();
-    const { logout } = useAuth();
-    // 🆕 Obtenemos la data del tenant y el estado de carga
+    // ⚠️ Obtenemos el objeto `user` del contexto, es CRUCIAL.
+    const { logout, user } = useAuth();
     const { tenantData, loading, error } = useTenant();
 
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
-
-    // 🆕 Helper para construir la URL absoluta del logo
-    const getAbsoluteUrl = useCallback((path: string) => {
-        if (!path) return '/icono.png'; // Fallback a un ícono local si no hay URL
-        // El TenantContext ya resuelve esto en muchos casos, pero si devuelve una ruta relativa:
-        const hostname = window.location.hostname;
-        return path.startsWith('http') ? path : `http://${hostname}:4000${path}`;
-    }, []);
-
-    // 🆕 Definimos valores dinámicos o de fallback
     const clinicName = tenantData?.name || 'Cargando Veterinaria...';
-    // Usamos el logoUrl del tenantData y lo convertimos a una URL absoluta
-    const logoSrc = getAbsoluteUrl(tenantData?.logoUrl || '/icono.png');
-
-    // 🚨 Lógica de Logout con confirmación
     const handleLogout = async () => {
         const confirmLogout = window.confirm("¿Estás seguro de que quieres cerrar tu sesión?");
-
         if (confirmLogout) {
             await logout();
             navigate('/admin/login', { replace: true });
@@ -52,15 +39,24 @@ const AdminLayout: React.FC<PropsWithChildren> = ({ children }) => {
         setIsMobileMenuOpen(prev => !prev);
     }
 
-    // Lógica de filtrado/búsqueda
+    // 🎯 Lógica de filtrado/búsqueda y RESTRICCIÓN DE ROLES
     const filteredNavItems = useMemo(() => {
-        if (!searchQuery) return initialNavItems;
-        return initialNavItems.filter(item =>
+        // 1. Aplicamos la restricción de rol
+        const roleFiltered = initialNavItems.filter(item => {
+            // Permitir todos los elementos por defecto
+            if (item.to !== "/admin/staff") {
+                return true;
+            }
+            // Solo permitir "/admin/staff" si el usuario es 'admin'
+            return user?.role === 'admin';
+        });
+        // 2. Aplicamos el filtro de búsqueda
+        if (!searchQuery) return roleFiltered;
+        return roleFiltered.filter(item =>
             item.label.toLowerCase().includes(searchQuery.toLowerCase())
         );
-    }, [searchQuery]);
+    }, [searchQuery, user?.role]); // 🆕 Dependencia del rol del usuario
 
-    // 🆕 Manejo del estado de carga y error
     if (loading) {
         return (
             <div className="loading-screen" style={{ padding: '20px', textAlign: 'center' }}>
@@ -69,6 +65,7 @@ const AdminLayout: React.FC<PropsWithChildren> = ({ children }) => {
         );
     }
 
+    // Verificamos si hay error o si el usuario no tiene permiso (aunque ProtectedRoute debería manejarlo)
     if (error || !tenantData) {
         return (
             <div className="error-screen" style={{ padding: '20px', textAlign: 'center', color: 'red' }}>
@@ -79,13 +76,9 @@ const AdminLayout: React.FC<PropsWithChildren> = ({ children }) => {
 
     return (
         <>
-            {/* Header para Móviles */}
+            {/* Header para Móviles (Sin cambios) */}
             <header className="mobile-header">
-                {/* 🎯 Logo en móvil: Dinámico */}
-                <Link to="/" className="mobile-logo-link">
-                    <img src={logoSrc} alt={`${clinicName} Logo`} className="mobile-logo-img" />
-                    <h2>Admin</h2>
-                </Link>
+                <h2 className="logo-text">{clinicName}</h2>
                 <button className="menu-icon-button" onClick={toggleMobileMenu} aria-label="Abrir menú">
                     <FaBars />
                 </button>
@@ -94,7 +87,15 @@ const AdminLayout: React.FC<PropsWithChildren> = ({ children }) => {
             <div className="admin-layout">
                 <aside className={`admin-sidebar ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
 
-                    {/* 🎯 Nuevo Buscador de Opciones */}
+                    {/* 🎯 Logo/Enlace: CRUCIALMENTE apunta al dashboard, NO a la raíz pública */}
+                    {/* <div className="admin-logo">
+                        <Link to="/admin/dashboard" className="logo-link" onClick={isMobileMenuOpen ? toggleMobileMenu : undefined}>
+                            <img src={logoSrc} alt={`${clinicName} Logo`} className="clinic-logo" />
+                            <h2 className="logo-text">{clinicName}</h2>
+                        </Link>
+                    </div> */}
+
+                    {/* Buscador de Opciones (Sin cambios) */}
                     <div className="search-bar-sidebar">
                         <FaSearch />
                         <input
@@ -107,6 +108,7 @@ const AdminLayout: React.FC<PropsWithChildren> = ({ children }) => {
 
                     <nav className="admin-nav">
                         <ul>
+                            {/* 🎯 Usamos filteredNavItems que aplica la restricción de rol */}
                             {filteredNavItems.length > 0 ? (
                                 filteredNavItems.map(item => (
                                     <li key={item.to}>
@@ -125,7 +127,7 @@ const AdminLayout: React.FC<PropsWithChildren> = ({ children }) => {
                         </ul>
                     </nav>
 
-                    {/* Footer de la barra lateral con Toggle de Tema y Logout */}
+                    {/* Footer de la barra lateral con Toggle de Tema y Logout (Sin cambios en esta parte) */}
                     <div className="sidebar-footer">
                         <div className="theme-toggle-container">
                             <span className="theme-toggle-label">
@@ -136,7 +138,6 @@ const AdminLayout: React.FC<PropsWithChildren> = ({ children }) => {
                             </button>
                         </div>
 
-                        {/* 🚨 Usamos handleLogout con confirmación */}
                         <button onClick={handleLogout}>
                             <FaSignOutAlt />
                             <span>Cerrar Sesión</span>
@@ -147,7 +148,7 @@ const AdminLayout: React.FC<PropsWithChildren> = ({ children }) => {
                 {isMobileMenuOpen && (
                     <div className="off-canvas-overlay" onClick={toggleMobileMenu}></div>
                 )}
-
+                
                 <main className="admin-content">
                     {children}
                 </main>

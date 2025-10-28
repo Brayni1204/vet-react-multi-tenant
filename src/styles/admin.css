@@ -6,7 +6,6 @@
     --primary-color: #1D3557;
     /* 🎯 Nuevo azul oscuro (Azul Medianoche) */
     --secondary-color: #2ED197;
-
     --admin-bg-color: #f4f7f9;
     --admin-sidebar-bg: var(--primary-color);
     --admin-sidebar-text: white;
@@ -52,7 +51,7 @@ body {
     width: 250px;
     background-color: var(--admin-sidebar-bg);
     color: var(--admin-sidebar-text);
-    padding: 2rem 0rem 0rem 0rem;
+    padding: 1rem 0rem 0rem 0rem;
     position: fixed;
     top: 0;
     left: 0;
@@ -189,7 +188,7 @@ body {
 }
 
 .sidebar-footer button {
-    margin-bottom: 0.5rem;
+    margin-bottom: 0rem;
     background: none;
     border: none;
     color: var(--admin-sidebar-text);
@@ -212,7 +211,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.5rem 0;
+    padding: 0rem 0;
 }
 
 .theme-toggle-btn {
@@ -228,17 +227,13 @@ body {
     cursor: pointer;
     transition: background-color 0.3s, border-color 0.3s;
 }
-
 .theme-toggle-btn:hover {
     background-color: rgba(255, 255, 255, 0.1);
     border-color: var(--admin-highlight-color);
 }
-
-
 /* ----------------------------------- */
 /* 🎯 MOBILE/RESPONSIVE STYLES       */
 /* ----------------------------------- */
-
 /* Header Móvil */
 .mobile-header {
     display: none;
@@ -287,33 +282,27 @@ body {
         top: 0;
         height: 100%;
         transform: translateX(-100%);
-        padding: 1rem 0;
+        padding: 0.5rem 0;
     }
-
     .admin-sidebar.mobile-open {
         transform: translateX(0);
     }
-
     .admin-content {
         padding: 1rem;
         width: 100%;
     }
-
     .mobile-header {
         display: flex;
     }
-
     /* Ocultamos el logo de escritorio en móvil */
     .admin-logo {
         display: none;
     }
-
     /* Mantenemos el buscador en móvil */
     .search-bar-sidebar {
         margin-top: 0;
         margin-bottom: 1rem;
     }
-
     /* Overlay para cerrar el menú al hacer clic fuera */
     .off-canvas-overlay {
         position: fixed;
@@ -324,8 +313,11 @@ body {
         background-color: rgba(0, 0, 0, 0.5);
         z-index: 998;
     }
-}
 
+    .sidebar-footer button {
+        margin-bottom: 0.5rem;
+    }
+}
 /* ----------------------------------- */
 /* 🎯 Adaptación de otros elementos  */
 /* ----------------------------------- */

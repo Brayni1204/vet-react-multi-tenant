@@ -31,6 +31,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 
 import './App.css';
 import TenantHeadManager from './components/TenantHeadManager';
+import StaffAdmin from './pages/admin/StaffAdmin';
 
 
 function App() {
@@ -78,12 +79,13 @@ function App() {
                 {/* Rutas protegidas */}
                 <Route path="/admin/*" element={
                   <ProtectedRoute>
-                    <AdminLayout>
+                    <AdminLayout> 
                       <Routes>
                         {/* 🚨 Redirige la ruta base /admin a /admin/dashboard */}
                         <Route index element={<Navigate to="dashboard" replace />} />
                         <Route path="dashboard" element={<Dashboard />} />
                         <Route path="services" element={<ServicesAdmin />} />
+                        <Route path="staff" element={<StaffAdmin  />} />
                         <Route path="profile" element={<ProfileAdmin />} />
                       </Routes>
                     </AdminLayout>
