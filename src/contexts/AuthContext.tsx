@@ -2,7 +2,7 @@
 import React, { createContext, useState, useContext, type ReactNode, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 // 🚨 Definimos API_BASE_URL (Ajusta el puerto si es necesario)
-const API_BASE_URL = 'http://localhost:4000/api';
+const API_BASE_URL = `http://${window.location.hostname}:4000/api`; // 👈 CAMBIO
 // 🆕 Interfaz User con todos los campos relevantes de Staff y Client
 export interface User {
     id: number;
