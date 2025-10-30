@@ -12,9 +12,9 @@ import '../../styles/admin.css';
 const initialNavItems = [
     { to: "/admin/dashboard", icon: <FaTachometerAlt />, label: "Panel" },
     { to: "/admin/services", icon: <FaClipboardList />, label: "Servicios" },
-    { to: "/admin/profile", icon: <FaClinicMedical />, label: "Mi Clínica" },
     // 🆕 Añadir la ruta de gestión de personal - Su visibilidad se controlará más abajo
     { to: "/admin/staff", icon: <FaUsers />, label: "Gestión de Personal" },
+    { to: "/admin/profile", icon: <FaClinicMedical />, label: "Mi Clínica" },
 ];
 
 const AdminLayout: React.FC<PropsWithChildren> = ({ children }) => {
@@ -148,7 +148,7 @@ const AdminLayout: React.FC<PropsWithChildren> = ({ children }) => {
                 {isMobileMenuOpen && (
                     <div className="off-canvas-overlay" onClick={toggleMobileMenu}></div>
                 )}
-                
+
                 <main className="admin-content">
                     {children}
                 </main>

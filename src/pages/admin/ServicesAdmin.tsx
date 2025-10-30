@@ -1,39 +1,36 @@
-// src/pages/admin/ServicesAdmin.tsx
+// src/pages/admin/ServicesAdmin.tsx (Corregido y con Tailwind CSS)
 import React, { useState, useEffect, useCallback } from 'react';
-// 🆕 Importar createPortal
 import { createPortal } from 'react-dom';
 import { useTenant } from '../../contexts/TenantContext';
-import '../../styles/admin.css';
 
 interface Service {
     id: number;
     title: string;
     description: string;
-    image: string; // URL de la imagen (completa desde el backend)
-    is_active: boolean; // Estado del servicio
+    image: string;
+    is_active: boolean;
 }
 
 interface ServiceForm {
     title: string;
     description: string;
-    image: string; // URL actual (para previsualización)
-    imageFile: File | null; // Archivo seleccionado para subir
+    image: string;
+    imageFile: File | null;
 }
 
 type FilterStatus = 'all' | 'active' | 'inactive';
 
-// 🆕 Componentes de Iconos (Simulación de librería de iconos)
-const IconEdit = () => <span role="img" aria-label="Editar">✏️</span>;
-const IconActivate = () => <span role="img" aria-label="Activar">✅</span>; // Cambié a un ícono más visible
-const IconDeactivate = () => <span role="img" aria-label="Desactivar">🚫</span>;
-const IconAdd = () => <span role="img" aria-label="Agregar">➕</span>;
-const IconSearch = () => <span role="img" aria-label="Buscar">🔍</span>;
+// Componentes de Iconos
+const IconEdit = (props: React.ComponentPropsWithoutRef<'span'>) => <span role="img" aria-label="Editar" {...props}>✏️</span>;
+const IconActivate = (props: React.ComponentPropsWithoutRef<'span'>) => <span role="img" aria-label="Activar" {...props}>✅</span>;
+const IconDeactivate = (props: React.ComponentPropsWithoutRef<'span'>) => <span role="img" aria-label="Desactivar" {...props}>🚫</span>;
+const IconAdd = (props: React.ComponentPropsWithoutRef<'span'>) => <span role="img" aria-label="Agregar" {...props}>➕</span>;
+const IconSearch = (props: React.ComponentPropsWithoutRef<'span'>) => <span role="img" aria-label="Buscar" {...props}>🔍</span>;
 
 
 const ServicesAdmin: React.FC = () => {
-    const { tenantData, loading, error } = useTenant();
+    const { tenantData, loading, error, getApiUrl } = useTenant();
     const [services, setServices] = useState<Service[]>([]);
-
     const [formState, setFormState] = useState<ServiceForm>({
         title: '',
         description: '',
@@ -45,34 +42,33 @@ const ServicesAdmin: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [fetchError, setFetchError] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
-    const [filterStatus, setFilterStatus] = useState<FilterStatus>('all'); // Cambié default a 'all'
+    const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
 
     const token = localStorage.getItem('admin-token');
-    const hostname = window.location.hostname;
-
-    // Helper para construir la URL base del API
-    const getBaseUrl = useCallback(() => {
-        if (!tenantData?.id) return '';
-        return `http://${hostname}:4000/api/tenants/${tenantData.id}`;
-    }, [tenantData, hostname]);
 
     // Helper para construir la URL de visualización (GET)
     const getDisplayImageUrl = (path: string) => {
-        if (!path) return '';
-        return path.startsWith('http') ? path : `http://${hostname}:4000${path}`;
+        if (!path || path.startsWith('http')) return path;
+        return `http://${window.location.host.split(':')[0]}:4000${path}`;
     };
 
 
     const fetchServices = useCallback(async () => {
-        if (!tenantData?.id) return;
+        if (!tenantData) return;
+        if (!token) {
+            setFetchError("Error: Token de autenticación no encontrado. Por favor, inicie sesión.");
+            return;
+        }
+
         setIsLoading(true);
         setFetchError(null);
 
-        // Envía filtros como query params
-        const url = `${getBaseUrl()}/services?status=${filterStatus}&search=${searchQuery}`;
+        // La URL envía el estado de filtro al backend
+        const url = `${getApiUrl()}/services?status=${filterStatus}&search=${searchQuery}`;
 
         try {
             const response = await fetch(url, {
+                method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -88,9 +84,9 @@ const ServicesAdmin: React.FC = () => {
         } finally {
             setIsLoading(false);
         }
-    }, [tenantData, token, getBaseUrl, filterStatus, searchQuery]);
+    }, [tenantData, token, getApiUrl, filterStatus, searchQuery]);
 
-    // Efecto para recargar al cambiar filtros
+
     useEffect(() => {
         if (tenantData) {
             const handler = setTimeout(() => {
@@ -124,16 +120,16 @@ const ServicesAdmin: React.FC = () => {
         setIsLoading(true);
         setFetchError(null);
 
-        if (!tenantData?.id) {
-            setFetchError("ID de inquilino no disponible.");
+        if (!tenantData || !token) {
+            setFetchError("Error de autenticación o ID de inquilino no disponible.");
             setIsLoading(false);
             return;
         }
 
         const method = isEditing ? 'PUT' : 'POST';
         const url = isEditing
-            ? `${getBaseUrl()}/services/${isEditing}`
-            : `${getBaseUrl()}/services`;
+            ? `${getApiUrl()}/services/${isEditing}`
+            : `${getApiUrl()}/services`;
 
         const formData = new FormData();
         formData.append('title', formState.title);
@@ -141,14 +137,12 @@ const ServicesAdmin: React.FC = () => {
 
         if (formState.imageFile) {
             formData.append('image', formState.imageFile);
-        } else if (isEditing) {
-            // Si es edición y no se subió un archivo, enviamos la URL/path de la imagen actual
-            formData.append('image', formState.image || '');
-        } else if (method === 'POST') {
+        } else if (method === 'POST' && !formState.image) {
             setFetchError('Debe seleccionar un archivo de imagen.');
             setIsLoading(false);
             return;
         }
+
 
         try {
             const response = await fetch(url, {
@@ -174,7 +168,6 @@ const ServicesAdmin: React.FC = () => {
         }
     };
 
-    // 🎯 Función para TOGGLE (Activar/Desactivar)
     const handleToggleActive = async (serviceId: number, currentStatus: boolean) => {
         const newState = !currentStatus;
         const action = newState ? 'activar' : 'desactivar';
@@ -183,10 +176,10 @@ const ServicesAdmin: React.FC = () => {
 
         if (!window.confirm(confirmMessage)) return;
 
-        if (!tenantData?.id) return;
+        if (!tenantData || !token) return;
         setFetchError(null);
 
-        const url = `${getBaseUrl()}/services/${serviceId}/${endpoint}`;
+        const url = `${getApiUrl()}/services/${serviceId}/${endpoint}`;
 
         try {
             const response = await fetch(url, {
@@ -195,7 +188,7 @@ const ServicesAdmin: React.FC = () => {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({}) // PUT requires a body, even if empty
+                body: JSON.stringify({})
             });
             if (response.ok) {
                 fetchServices();
@@ -212,7 +205,7 @@ const ServicesAdmin: React.FC = () => {
         setFormState({
             title: service.title,
             description: service.description,
-            image: service.image, // La URL completa viene de la DB
+            image: service.image,
             imageFile: null
         });
         setIsEditing(service.id);
@@ -225,153 +218,215 @@ const ServicesAdmin: React.FC = () => {
         setIsModalOpen(true);
     }
 
-    if (loading) return <div>Cargando datos de la clínica...</div>;
-    if (error || !tenantData) return <div>{error || "No se pudo cargar la información de la clínica."}</div>;
+    if (loading) return <div className="p-6 text-gray-700">Cargando datos de la clínica...</div>;
+    if (error || !tenantData) return <div className="p-6 text-red-600 font-semibold">{error || "No se pudo cargar la información de la clínica."}</div>;
 
-    // 🆕 Componente Modal fuera del return principal
+
+    // Componente Modal (con clases Tailwind)
     const ModalForm = isModalOpen ? (
-        <div className="modal-overlay">
-            <div className="modal-content">
-                <h3>{isEditing ? 'Editar Servicio' : 'Agregar Nuevo Servicio'}</h3>
-                {fetchError && <div className="error-message">{fetchError}</div>}
-                <form onSubmit={handleFormSubmit}>
+        <div
+            className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center p-4 z-50 transition-opacity duration-300"
+            onClick={handleCancel}
+        >
+            <div
+                className="bg-white p-6 md:p-8 rounded-xl shadow-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto relative border-t-4 border-indigo-600 transform transition-all duration-300 scale-100"
+                onClick={(e) => e.stopPropagation()}
+                translate="no" // 👈 Evita la traducción automática en el modal
+            >
+                <h3 className="text-2xl font-extrabold text-gray-800 mb-6 pb-3 border-b border-gray-200">
+                    {isEditing ? 'Editar Servicio' : 'Agregar Nuevo Servicio'}
+                </h3>
+                {fetchError && <div className="bg-red-100 text-red-700 p-3 rounded-lg mb-4 text-center border border-red-200">{fetchError}</div>}
+
+                <form onSubmit={handleFormSubmit} className='space-y-4'>
 
                     <div className="form-group">
-                        <label htmlFor="title">Título</label>
-                        <input type="text" name="title" id="title" value={formState.title} onChange={handleFormChange} required />
+                        <label htmlFor="title" className="block text-sm font-semibold text-gray-700 mb-1">Título</label>
+                        <input type="text" name="title" id="title" value={formState.title} onChange={handleFormChange} required
+                            className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150"
+                        />
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="description">Descripción</label>
-                        <textarea name="description" id="description" value={formState.description} onChange={handleFormChange} required />
+                        <label htmlFor="description" className="block text-sm font-semibold text-gray-700 mb-1">Descripción</label>
+                        <textarea name="description" id="description" value={formState.description} onChange={handleFormChange} required
+                            className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 h-24 resize-none"
+                        />
                     </div>
 
-                    <div className="form-group file-upload-group">
-                        <label htmlFor="imageFile">
+                    <div className="form-group space-y-3">
+                        <label htmlFor="imageFile" className="block text-sm font-semibold text-gray-700 mb-1">
                             Subir Imagen
                             {(isEditing && formState.image) ? ` (Actual: ${formState.image.substring(formState.image.lastIndexOf('/') + 1)})` : ''}
                         </label>
-                        <input type="file" name="imageFile" id="imageFile" onChange={handleFileChange} accept="image/*" />
+                        <input type="file" name="imageFile" id="imageFile" onChange={handleFileChange} accept="image/*"
+                            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer"
+                        />
 
-                        {/* Previsualización */}
+                        {/* Previsualización y botón Quitar */}
                         {(formState.image || formState.imageFile) && (
-                            <div className="image-preview-wrapper">
+                            <div className="flex flex-col items-start space-y-3 pt-2">
                                 <img
                                     src={formState.imageFile ? URL.createObjectURL(formState.imageFile) : getDisplayImageUrl(formState.image)}
                                     alt="Imagen actual/preview"
+                                    className="w-40 h-40 object-cover rounded-lg shadow-md border border-gray-200"
                                 />
-                            </div>
-                        )}
 
-                        {/* Opción para quitar imagen */}
-                        {isEditing && formState.image && (
-                            <button
-                                type="button"
-                                className="btn danger small delete-image-btn"
-                                onClick={() => setFormState(p => ({ ...p, image: '', imageFile: null }))}
-                            >
-                                Quitar Imagen Actual
-                            </button>
+                                {/* Opción para quitar imagen */}
+                                {isEditing && formState.image && (
+                                    <button
+                                        type="button"
+                                        className="text-red-600 hover:text-red-800 text-sm font-medium transition duration-150"
+                                        onClick={() => setFormState(p => ({ ...p, image: '', imageFile: null }))}
+                                    >
+                                        Quitar Imagen Actual
+                                    </button>
+                                )}
+                            </div>
                         )}
                     </div>
 
-                    <div className="admin-actions modal-actions">
-                        <button type="submit" className="btn primary" disabled={isLoading}>{isLoading ? 'Guardando...' : 'Guardar'}</button>
-                        <button type="button" className="btn secondary" onClick={handleCancel} disabled={isLoading}>Cancelar</button>
+                    <div className="flex justify-end space-x-3 pt-6">
+                        <button type="submit"
+                            className="px-6 py-2 bg-indigo-600 text-white font-bold rounded-lg shadow-md hover:bg-indigo-700 transition duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled={isLoading}
+                        >
+                            {isLoading ? 'Guardando...' : 'Guardar'}
+                        </button>
+                        <button type="button"
+                            className="px-6 py-2 bg-gray-200 text-gray-700 font-semibold rounded-lg shadow-sm hover:bg-gray-300 transition duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+                            onClick={handleCancel} disabled={isLoading}
+                        >
+                            Cancelar
+                        </button>
                     </div>
                 </form>
             </div>
         </div>
     ) : null;
 
-    // 🎯 Renderizamos el modal usando un Portal
     const ModalPortal = isModalOpen
         ? createPortal(ModalForm, document.body)
         : null;
 
 
     return (
-        <div className="services-admin-page">
-            <h2>Servicios de {tenantData.name}</h2>
+        // 👇 Aplicamos translate="no" al contenedor principal
+        <div className="p-4 md:p-8 bg-gray-50 min-h-screen" translate="no">
+            <div className="bg-white shadow-xl rounded-xl p-6 lg:p-8 max-w-full lg:max-w-7xl mx-auto">
+                <h2 className="text-2xl md:text-3xl font-extrabold text-indigo-900 mb-8 border-b-4 border-indigo-100 pb-3">
+                    Servicios de {tenantData.name}
+                </h2>
 
-            <div className="admin-controls">
-                <button className="btn primary" onClick={handleCreateClick}>
-                    <IconAdd /> Agregar Nuevo Servicio
-                </button>
-
-                {/* Controles de Filtrado y Búsqueda */}
-                <div className="filter-group">
-                    <div className="search-bar"> {/* Clase que usa el estilo del buscador */}
-                        <IconSearch />
-                        <input
-                            type="text"
-                            placeholder="Buscar por Título o Descripción..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                        />
-                    </div>
-
-                    <select
-                        value={filterStatus}
-                        onChange={(e) => setFilterStatus(e.target.value as FilterStatus)}
-                        className="status-select"
+                {/* Controles: Botón y Filtros */}
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+                    <button
+                        className="flex items-center space-x-2 px-6 py-3 bg-indigo-600 text-white font-bold rounded-lg shadow-md hover:bg-indigo-700 transition duration-150"
+                        onClick={handleCreateClick}
                     >
-                        <option value="all">Mostrar Todos</option>
-                        <option value="active">Solo Activos</option>
-                        <option value="inactive">Solo Inactivos</option>
-                    </select>
+                        <IconAdd className="text-lg" /> <span>Agregar Nuevo Servicio</span>
+                    </button>
+
+                    <div className="flex flex-wrap items-center gap-4 w-full md:w-auto">
+                        {/* Search Bar */}
+                        <div className="relative flex items-center border border-gray-300 rounded-lg p-2 bg-white w-full md:w-64 focus-within:ring-2 focus-within:ring-indigo-500 transition duration-150 shadow-sm">
+                            <IconSearch className="text-gray-500 ml-1" />
+                            <input
+                                type="text"
+                                placeholder="Buscar por Título..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="outline-none w-full text-gray-700 px-2"
+                            />
+                        </div>
+
+                        {/* Status Select */}
+                        <select
+                            value={filterStatus}
+                            onChange={(e) => setFilterStatus(e.target.value as FilterStatus)}
+                            className="p-3 border border-gray-300 rounded-lg bg-white text-gray-700 shadow-sm outline-none focus:ring-2 focus:ring-indigo-500 transition duration-150 w-full md:w-auto appearance-none pr-8"
+                        >
+                            <option value="all">Mostrar Todos</option>
+                            <option value="active">Solo Activos</option>
+                            <option value="inactive">Solo Inactivos</option>
+                        </select>
+                    </div>
                 </div>
 
-            </div>
+                {/* Lista de Servicios */}
+                <div className="mt-8">
+                    <h3 className="text-xl font-bold text-gray-700 mb-4">
+                        Servicios Encontrados ({services.length})
+                    </h3>
+                    {isLoading && <p className="text-gray-500 italic p-4 text-center">Cargando servicios...</p>}
+                    {fetchError && <div className="bg-red-100 text-red-700 p-3 rounded-lg mb-4 text-center border border-red-200">Error: {fetchError}</div>}
 
-            <div className="services-list-container">
-                <h3>Servicios Encontrados ({services.length})</h3>
-                <div className="services-list">
                     {services.length > 0 ? (
-                        services.map(service => (
-                            <div key={service.id} className={`service-admin-item card-shadow ${!service.is_active ? 'inactive-card' : ''}`}>
-                                <div className="service-image-container">
-                                    {service.image ? (
-                                        <img src={getDisplayImageUrl(service.image)} alt={service.title} />
-                                    ) : (
-                                        <div className="no-image-placeholder">No Image</div>
-                                    )}
-                                    {/* Etiqueta de estado */}
-                                    <span className={`status-tag ${service.is_active ? 'active-tag' : 'inactive-tag'}`}>
-                                        {service.is_active ? 'Activo' : 'Inactivo'}
-                                    </span>
-                                </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {services.map(service => (
+                                <div
+                                    key={service.id}
+                                    className={`bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 border-t-4 ${service.is_active ? 'border-green-500 hover:shadow-xl' : 'border-red-500 hover:shadow-xl'}`}
+                                >
+                                    {/* Contenedor interno para el efecto de "desactivado" sin perder claridad */}
+                                    <div className={`${!service.is_active ? 'bg-gray-50' : ''}`}>
 
-                                <div className="service-admin-info">
-                                    <h4>{service.title}</h4>
-                                    <p className="service-description">{service.description}</p>
-                                    <div className="service-admin-actions">
-                                        <button className="btn secondary small" onClick={() => handleEditClick(service)}>
-                                            <IconEdit /> Editar
-                                        </button>
-
-                                        {/* Botón de activación/desactivación dinámico */}
-                                        <button
-                                            className={`btn small ${service.is_active ? 'danger' : 'success'}`}
-                                            onClick={() => handleToggleActive(service.id, service.is_active)}
-                                        >
-                                            {service.is_active ? (
-                                                <> <IconDeactivate /> Desactivar </>
+                                        {/* Imagen y Status Tag */}
+                                        <div className="relative h-48 w-full">
+                                            {service.image ? (
+                                                <img
+                                                    src={getDisplayImageUrl(service.image)}
+                                                    alt={service.title}
+                                                    className="w-full h-full object-cover"
+                                                />
                                             ) : (
-                                                <> <IconActivate /> Activar </>
+                                                <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500 font-semibold">No Image</div>
                                             )}
-                                        </button>
-                                    </div>
+                                            {/* Etiqueta de estado */}
+                                            <span className={`absolute top-3 right-3 px-3 py-1 text-xs font-bold rounded-full text-white shadow-md ${service.is_active ? 'bg-green-500' : 'bg-red-500'}`}>
+                                                {service.is_active ? 'Activo' : 'Inactivo'}
+                                            </span>
+                                        </div>
+
+                                        {/* Información y Acciones */}
+                                        <div className="p-4 space-y-3">
+                                            <h4 className="text-xl font-bold text-gray-800 line-clamp-2">{service.title}</h4>
+                                            <p className="text-sm text-gray-600 line-clamp-3">{service.description}</p>
+
+                                            <div className="flex flex-wrap gap-2 pt-3">
+                                                <button
+                                                    className="flex items-center space-x-1 px-4 py-2 text-sm font-medium rounded-lg bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition duration-150 shadow-sm"
+                                                    onClick={() => handleEditClick(service)}
+                                                >
+                                                    <IconEdit /> <span>Editar</span>
+                                                </button>
+
+                                                {/* Botón de activación/desactivación dinámico */}
+                                                <button
+                                                    className={`flex items-center space-x-1 px-4 py-2 text-sm font-medium rounded-lg shadow-sm transition duration-150 ${service.is_active ? 'bg-red-500 text-white hover:bg-red-600' : 'bg-green-500 text-white hover:bg-green-600'}`}
+                                                    onClick={() => handleToggleActive(service.id, service.is_active)}
+                                                >
+                                                    {service.is_active ? (
+                                                        <> <IconDeactivate /> Desactivar </>
+                                                    ) : (
+                                                        <> <IconActivate /> Activar </>
+                                                    )}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div> {/* Cierre del div interno opcional */}
                                 </div>
-                            </div>
-                        ))
+                            ))}
+                        </div>
                     ) : (
-                        <p className="empty-message">No se encontraron servicios con los filtros aplicados.</p>
+                        <p className="text-gray-500 mt-6 p-6 border-2 border-dashed border-gray-200 rounded-xl text-center">
+                            No se encontraron servicios con los filtros aplicados.
+                        </p>
                     )}
                 </div>
-            </div>
 
-            {ModalPortal} {/* 🎯 Renderiza el Portal aquí */}
+                {ModalPortal}
+            </div>
         </div>
     );
 };
