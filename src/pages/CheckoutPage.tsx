@@ -32,6 +32,13 @@ const CheckoutPage: React.FC = () => {
         return today.toISOString().split('T')[0];
     };
 
+    const getMaxDate = () => {
+        const today = new Date();
+        // Sumamos 10 días a la fecha actual
+        today.setDate(today.getDate() + 10);
+        return today.toISOString().split('T')[0];
+    };
+
     const handleSubmitOrder = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!pickupDate) {
@@ -108,6 +115,7 @@ const CheckoutPage: React.FC = () => {
                                     value={pickupDate}
                                     onChange={(e) => setPickupDate(e.target.value)}
                                     min={getMinDate()} // No se puede recoger hoy mismo
+                                    max={getMaxDate()} // Máximo 10 días
                                     required
                                     className="w-full p-3 border border-gray-300 rounded-lg shadow-sm"
                                 />

@@ -5,7 +5,7 @@ import { useTenant } from '../contexts/TenantContext.tsx'; // .tsx añadido
 // 🔽 --- AÑADIDOS --- 🔽
 import {
     FaPhone, FaClock, FaMapMarkerAlt, FaBars, FaTimes,
-    FaShoppingCart, FaUserCircle, FaSignOutAlt
+    FaShoppingCart, FaUserCircle, FaSignOutAlt, FaBoxOpen
 } from 'react-icons/fa';
 import { useCart } from '../contexts/CartContext.tsx'; // .tsx añadido
 import { useClientAuth } from '../contexts/ClientAuthContext.tsx'; // .tsx añadido
@@ -50,6 +50,15 @@ const Header: React.FC<HeaderProps> = ({ isScrolled }) => {
         <>
             {isAuthenticated ? (
                 <div className={mobile ? "mobile-auth-menu" : "desktop-auth-menu"}>
+                    <NavLink
+                        to="/mis-pedidos"
+                        className={mobile ? "mobile-nav-link-icon" : "header-icon-link"}
+                        title="Mis Pedidos"
+                        onClick={mobile ? toggleMenu : undefined}
+                    >
+                        <FaBoxOpen />
+                        {mobile && <span>Mis Pedidos</span>}
+                    </NavLink>
                     <FaUserCircle />
                     <span className="client-name">Hola, {user?.name.split(' ')[0]}</span>
                     {/* (Opcional: enlace a perfil de cliente) 
@@ -78,40 +87,40 @@ const Header: React.FC<HeaderProps> = ({ isScrolled }) => {
         <>
             {/* 🎯 HEADER */}
             <header className={`sticky top-0 z-50 bg-white p-4 border-b border-gray-200 transition-all duration-300 ${isScrolled ? 'py-2' : 'py-4'}`}>
-                {/* 🎯 CONTACT INFO */}
+                {/* ------------------- */}
+                {/* 1. Barra de Contacto */}
+                {/* ------------------- */}
                 <div className={`hidden md:flex justify-end gap-6 text-sm text-gray-500 transition-opacity duration-300 ${isScrolled ? 'h-0 opacity-0 mb-0 overflow-hidden' : 'h-auto opacity-100 mb-2'}`}>
                     <div className="flex items-center gap-2">
-                        <FaPhone className="text-gray-600" />
-                        <span>{tenantData?.contact.phone}</span>
+                        <FaPhone className="text-gray-600" /> <span>{tenantData?.contact.phone}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                        <FaClock className="text-gray-600" />
-                        <span>{tenantData?.contact.schedule}</span>
+                        <FaClock className="text-gray-600" /> <span>{tenantData?.contact.schedule}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                        <FaMapMarkerAlt className="text-gray-600" />
-                        <span>{tenantData?.contact.address}</span>
+                        <FaMapMarkerAlt className="text-gray-600" /> <span>{tenantData?.contact.address}</span>
                     </div>
                 </div>
 
-                {/* 🎯 NAV */}
+                {/* ------------------- */}
+                {/* 2. Barra Principal  */}
+                {/* ------------------- */}
                 <nav className="flex justify-between items-center max-w-7xl mx-auto">
-                    {/* 🎯 LOGO */}
+                    {/* LOGO */}
                     <Link to="/" className="text-2xl font-bold" style={{ color: primaryColor }}>
                         <h1>{tenantData?.name}</h1>
                     </Link>
 
-                    {/* 🎯 DESKTOP MENU */}
+                    {/* DESKTOP MENU */}
                     <div className="hidden md:flex items-center space-x-6">
-                        <ul className="flex space-x-6" style={linkHoverStyle}>
-                            <li><NavLink to="/" className="nav-link">Inicio</NavLink></li>
+                        <ul className="flex space-x-8" style={linkHoverStyle}>
+                            <li><NavLink to="/" className="nav-link" end>Inicio</NavLink></li>
                             <li><NavLink to="/servicios" className="nav-link">Servicios</NavLink></li>
                             <li><NavLink to="/tienda" className="nav-link">Tienda</NavLink></li>
                             <li><NavLink to="/urgencias" className="nav-link">Urgencias 24/7</NavLink></li>
                             <li><NavLink to="/contacto" className="nav-link">Contacto</NavLink></li>
                         </ul>
 
-                        {/* --- Acciones (Carrito y Auth) --- */}
                         <div className="flex items-center space-x-4 pl-4 border-l border-gray-200">
                             <NavLink to="/checkout" className="header-icon-link cart-link" aria-label="Carrito de compras">
                                 <FaShoppingCart />
@@ -119,21 +128,18 @@ const Header: React.FC<HeaderProps> = ({ isScrolled }) => {
                                     <span className="cart-badge">{totalItems}</span>
                                 )}
                             </NavLink>
-
                             <AuthNav />
                         </div>
                     </div>
 
-                    {/* 🎯 MENU TOGGLE (MOBILE) */}
+                    {/* MENU TOGGLE (MOBILE) */}
                     <div className="md:hidden flex items-center gap-4">
-                        {/* Carrito en móvil (fuera del menú desplegable) */}
                         <NavLink to="/checkout" className="header-icon-link cart-link" aria-label="Carrito de compras">
                             <FaShoppingCart style={{ color: primaryColor }} />
                             {totalItems > 0 && (
                                 <span className="cart-badge">{totalItems}</span>
                             )}
                         </NavLink>
-
                         <div className="text-2xl cursor-pointer z-50" onClick={toggleMenu} style={{ color: primaryColor }}>
                             <FaBars />
                         </div>
@@ -141,7 +147,9 @@ const Header: React.FC<HeaderProps> = ({ isScrolled }) => {
                 </nav>
             </header>
 
-            {/* 🎯 OFF-CANVAS MENU (MOBILE) */}
+            {/* ------------------- */}
+            {/* 3. Menú Móvil (Off-canvas) */}
+            {/* ------------------- */}
             <aside className={`fixed top-0 right-0 w-72 h-full bg-white shadow-xl transform transition-transform duration-300 z-50 ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
                 <div className="flex justify-between items-center p-4 border-b border-gray-100">
                     <div className="text-xl font-bold" style={{ color: primaryColor }}>
@@ -163,10 +171,9 @@ const Header: React.FC<HeaderProps> = ({ isScrolled }) => {
                     <li><Link to="/tienda" className="mobile-nav-link" onClick={toggleMenu}>Tienda</Link></li>
                     <li><Link to="/urgencias" className="mobile-nav-link" onClick={toggleMenu}>Urgencias 24/7</Link></li>
                     <li><Link to="/contacto" className="mobile-nav-link" onClick={toggleMenu}>Contacto</Link></li>
-
-                    {/* Enlace de Citas (si es necesario) */}
                     <li className="mt-4">
-                        <Link to="/citas"
+                        <Link
+                            to="/citas"
                             className="btn primary block text-center"
                             style={{ ...linkHoverStyle, width: '100%' }}
                             onClick={toggleMenu}>
@@ -181,4 +188,3 @@ const Header: React.FC<HeaderProps> = ({ isScrolled }) => {
 };
 
 export default Header;
-

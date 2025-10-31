@@ -32,6 +32,7 @@ import AdminLogin from './pages/admin/AdminLogin.tsx';
 // Páginas de Tienda (Cliente)
 import CheckoutPage from './pages/CheckoutPage.tsx';
 import OrderSuccessPage from './pages/OrderSuccessPage.tsx';
+import MyOrdersPage from './pages/MyOrdersPage';
 
 // Rutas Protegidas
 import ProtectedRoute from './components/ProtectedRoute.tsx'; // Admin
@@ -99,6 +100,7 @@ function App() {
                   <Route element={<ClientProtectedRoute />}>
                     <Route path="/checkout" element={<AuthLayout><CheckoutPage /></AuthLayout>} />
                     <Route path="/order-success" element={<AuthLayout><OrderSuccessPage /></AuthLayout>} />
+                    <Route path="/mis-pedidos" element={<AuthLayout><MyOrdersPage /></AuthLayout>} />
                   </Route>
 
                   {/* 4. Rutas de Admin Protegidas (Requiere login de admin) */}
