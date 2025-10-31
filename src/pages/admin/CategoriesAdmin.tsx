@@ -35,7 +35,7 @@ const CategoriesAdmin: React.FC = () => {
 
     const token = localStorage.getItem('admin-token');
 
-    const getApiEndpoint = (path: string = '') => `${getApiUrl()}/admin/categories${path}`;
+    const getApiEndpoint = (path: string = '') => `${getApiUrl()}/categories${path}`;
 
     const fetchCategories = useCallback(async () => {
         if (!token) return;

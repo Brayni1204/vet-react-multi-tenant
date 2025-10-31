@@ -1,4 +1,4 @@
-// Ruta: src/pages/admin/StaffAdmin.tsx
+// Ruta: src/components/Header.tsx
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTenant } from '../contexts/TenantContext'; // Importamos el hook

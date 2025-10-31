@@ -36,6 +36,9 @@ import CategoriesAdmin from './pages/admin/CategoriesAdmin';
 import ProductsAdmin from './pages/admin/ProductsAdmin';
 
 
+
+
+
 function App() {
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -81,7 +84,7 @@ function App() {
                 {/* Rutas protegidas */}
                 <Route path="/admin/*" element={
                   <ProtectedRoute>
-                    <AdminLayout> 
+                    <AdminLayout>
                       <Routes>
                         {/* 🚨 Redirige la ruta base /admin a /admin/dashboard */}
                         <Route index element={<Navigate to="dashboard" replace />} />
@@ -89,7 +92,7 @@ function App() {
                         <Route path="services" element={<ServicesAdmin />} />
                         <Route path="categories" element={<CategoriesAdmin />} />
                         <Route path="products" element={<ProductsAdmin />} />
-                        <Route path="staff" element={<StaffAdmin  />} />
+                        <Route path="staff" element={<StaffAdmin />} />
                         <Route path="profile" element={<ProfileAdmin />} />
                       </Routes>
                     </AdminLayout>

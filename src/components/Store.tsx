@@ -1,6 +1,10 @@
 // src/components/Store.tsx
 import React, { useState, useEffect } from 'react';
-import { useTenant } from '../contexts/TenantContext'; // Asumiendo que lo usas aquí también
+import { useTenant } from '../contexts/TenantContext.tsx';
+import { useCart } from '../contexts/CartContext.tsx'; // 👈 AÑADIR
+import { useClientAuth } from '../contexts/ClientAuthContext.tsx'; // 👈 AÑADIR
+import { useNavigate } from 'react-router-dom'; // 👈 AÑADIR
+import '../styles/Store.css'; // 👈 Asegúrate que el CSS exista
 
 // --- Interfaces basadas en tu BBDD ---
 interface Category {
@@ -32,8 +36,10 @@ const IconLoading = (props: React.ComponentPropsWithoutRef<'span'>) => <span rol
 
 
 const Store: React.FC = () => {
-    // El hook 'useTenant' ya nos da la URL base correcta (ej: http://chavez.localhost:4000/api)
     const { getApiUrl, loading: tenantLoading, error: tenantError, tenantData } = useTenant();
+    const { addToCart } = useCart(); // 👈 Hook de Carrito
+    const { isAuthenticated } = useClientAuth(); // 👈 Hook de Auth de Cliente
+    const navigate = useNavigate(); // 👈 Hook de Navegación
 
     const [categories, setCategories] = useState<Category[]>([]);
     const [products, setProducts] = useState<Product[]>([]);
@@ -41,14 +47,13 @@ const Store: React.FC = () => {
 
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [notification, setNotification] = useState<string | null>(null);
 
     // 1. Cargar categorías una vez
     useEffect(() => {
-        if (!tenantData) return; // Esperar a que el tenant esté listo
-
+        if (!tenantData) return;
         const fetchCategories = async () => {
             try {
-                // Usamos getApiUrl() que ya tiene el subdominio resuelto
                 const response = await fetch(`${getApiUrl()}/store/categories`);
                 if (!response.ok) throw new Error('No se pudieron cargar las categorías.');
                 const data = await response.json();
@@ -62,13 +67,11 @@ const Store: React.FC = () => {
 
     // 2. Cargar productos cada vez que cambia la categoría seleccionada
     useEffect(() => {
-        if (!tenantData) return; // Esperar a que el tenant esté listo
-
+        if (!tenantData) return;
         const fetchProducts = async () => {
             setIsLoading(true);
             setError(null);
 
-            // Construimos la URL con parámetros de búsqueda
             const url = new URL(`${getApiUrl()}/store/products`);
             if (selectedCategory !== 'all') {
                 url.searchParams.append('category', String(selectedCategory));
@@ -85,22 +88,31 @@ const Store: React.FC = () => {
                 setIsLoading(false);
             }
         };
-
         fetchProducts();
-
     }, [getApiUrl, tenantData, selectedCategory]);
 
-    // --- Renderizado ---
+    // --- Manejador del botón ---
+    const handleReserveClick = (product: Product) => {
+        if (!isAuthenticated) {
+            // Si no está logueado, redirigir a login, guardando la ubicación
+            navigate('/login', { state: { from: location.pathname } });
+        } else {
+            // Si está logueado, añadir al carrito
+            addToCart(product, 1);
+            setNotification(`${product.name} añadido al carrito!`);
+            // Limpiar notificación después de 2 segundos
+            setTimeout(() => setNotification(null), 2000);
+        }
+    };
 
+    // --- Renderizado ---
     if (tenantLoading) {
         return <div className="p-8 text-center text-gray-600">Cargando tienda...</div>;
     }
-
     if (tenantError) {
         return <div className="p-8 text-center text-red-600">Error: {tenantError}</div>;
     }
 
-    // Componente de botón de categoría (para manejar el estado activo)
     const CategoryButton: React.FC<{ id: 'all' | number, name: string }> = ({ id, name }) => {
         const isActive = selectedCategory === id;
         return (
@@ -120,17 +132,21 @@ const Store: React.FC = () => {
     };
 
     return (
-        // Usamos 'translate="no"' como en tu ServicesAdmin para evitar traducciones
         <section className="bg-gray-50 py-12 md:py-16" translate="no">
-            <div className="container mx-auto px-4 max-w-7xl">
 
-                {/* Título */}
+            {/* Notificación de "Añadido al Carrito" */}
+            {notification && (
+                <div className="fixed top-24 right-4 z-50 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg animate-pulse">
+                    {notification}
+                </div>
+            )}
+
+            <div className="container mx-auto px-4 max-w-7xl">
                 <h2 className="text-3xl md:text-4xl font-extrabold text-indigo-900 mb-8 text-center">
                     <IconStore className="mr-2" />
                     Nuestra Tienda
                 </h2>
 
-                {/* Filtros de Categoría */}
                 <div className="flex flex-wrap justify-center gap-2 mb-10 px-4">
                     <CategoryButton id="all" name="Todos los Productos" />
                     {categories.map(cat => (
@@ -138,14 +154,12 @@ const Store: React.FC = () => {
                     ))}
                 </div>
 
-                {/* Grid de Productos */}
                 {isLoading && (
                     <div className="text-center p-12 text-gray-600">
                         <IconLoading className="text-2xl animate-spin" />
                         <p className="mt-2 font-semibold">Cargando productos...</p>
                     </div>
                 )}
-
                 {error && (
                     <div className="text-center p-12 bg-red-50 text-red-700 rounded-lg">
                         <p className="font-bold">Error:</p>
@@ -156,13 +170,10 @@ const Store: React.FC = () => {
                 {!isLoading && !error && products.length > 0 && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         {products.map(product => (
-                            <div
-                                key={product.id}
-                                className="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col transition-all duration-300 hover:shadow-xl"
-                            >
+                            <div key={product.id} className="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col transition-all duration-300 hover:shadow-xl">
                                 <div className="h-56 w-full bg-gray-100">
                                     <img
-                                        src={product.image || 'https://via.placeholder.com/300x300.png?text=Sin+Imagen'} // Placeholder
+                                        src={product.image || 'https://placehold.co/300x300/E2E8F0/94A3B8?text=Sin+Imagen'}
                                         alt={product.name}
                                         className="w-full h-full object-cover"
                                     />
@@ -181,8 +192,9 @@ const Store: React.FC = () => {
                                         <button
                                             className="w-full mt-3 px-4 py-2 bg-indigo-600 text-white font-bold rounded-lg shadow-md hover:bg-indigo-700 transition duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
                                             disabled={product.stock <= 0}
+                                            onClick={() => handleReserveClick(product)} // 👈 AÑADIDO
                                         >
-                                            {product.stock > 0 ? 'Reservar (Recoger en Tienda)' : 'Agotado'}
+                                            {product.stock > 0 ? (isAuthenticated ? 'Añadir al Carrito' : 'Reservar (Recoger en Tienda)') : 'Agotado'}
                                         </button>
                                     </div>
                                 </div>
@@ -198,7 +210,6 @@ const Store: React.FC = () => {
                         </p>
                     </div>
                 )}
-
             </div>
         </section>
     );

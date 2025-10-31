@@ -76,7 +76,7 @@ const ProductsAdmin: React.FC = () => {
     const fetchCategories = useCallback(async () => {
         if (!token) return;
         try {
-            const response = await fetch(`${getApiUrl()}/admin/categories`, {
+            const response = await fetch(`${getApiUrl()}/categories`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await response.json();
@@ -97,7 +97,7 @@ const ProductsAdmin: React.FC = () => {
         setIsLoading(true);
         setFetchError(null);
 
-        const url = new URL(`${getApiUrl()}/admin/products`);
+        const url = new URL(`${getApiUrl()}/products`);
         url.searchParams.append('status', filterStatus);
         url.searchParams.append('search', searchQuery);
 
@@ -171,8 +171,8 @@ const ProductsAdmin: React.FC = () => {
 
         const method = isEditing ? 'PUT' : 'POST';
         const url = isEditing
-            ? `${getApiUrl()}/admin/products/${isEditing}`
-            : `${getApiUrl()}/admin/products`;
+            ? `${getApiUrl()}/products/${isEditing}`
+            : `${getApiUrl()}/products`;
 
         const formData = new FormData();
         formData.append('name', formState.name);
@@ -218,7 +218,7 @@ const ProductsAdmin: React.FC = () => {
         if (!window.confirm(`¿Estás seguro de que quieres ${action} este producto?`)) return;
 
         setFetchError(null);
-        const url = `${getApiUrl()}/admin/products/${productId}/${endpoint}`;
+        const url = `${getApiUrl()}/products/${productId}/${endpoint}`;
 
         try {
             const response = await fetch(url, {
