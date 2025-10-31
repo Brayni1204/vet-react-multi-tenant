@@ -2,7 +2,7 @@
 import React, { type PropsWithChildren, useState, useMemo } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 // 🆕 Importamos FaUsers
-import { FaTachometerAlt, FaClipboardList, FaClinicMedical, FaSignOutAlt, FaMoon, FaSun, FaBars, FaSearch, FaUsers } from 'react-icons/fa';
+import { FaTachometerAlt, FaClipboardList, FaClinicMedical, FaSignOutAlt, FaMoon, FaSun, FaBars, FaSearch, FaUsers, FaTags, FaBoxOpen } from 'react-icons/fa';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTenant } from '../../contexts/TenantContext';
@@ -12,9 +12,12 @@ import '../../styles/admin.css';
 const initialNavItems = [
     { to: "/admin/dashboard", icon: <FaTachometerAlt />, label: "Panel" },
     { to: "/admin/services", icon: <FaClipboardList />, label: "Servicios" },
-    // 🆕 Añadir la ruta de gestión de personal - Su visibilidad se controlará más abajo
-    { to: "/admin/staff", icon: <FaUsers />, label: "Gestión de Personal" },
     { to: "/admin/profile", icon: <FaClinicMedical />, label: "Mi Clínica" },
+    // 🆕 Añadir la ruta de gestión de personal - Su visibilidad se controlará más abajo
+    { to: "/admin/categories", icon: <FaTags />, label: "Categorías (Tienda)" },
+    { to: "/admin/products", icon: <FaBoxOpen />, label: "Productos (Tienda)" },
+    // --- 🔼 AÑADIDO ---
+    { to: "/admin/staff", icon: <FaUsers />, label: "Gestión de Personal" },
 ];
 
 const AdminLayout: React.FC<PropsWithChildren> = ({ children }) => {
@@ -41,21 +44,27 @@ const AdminLayout: React.FC<PropsWithChildren> = ({ children }) => {
 
     // 🎯 Lógica de filtrado/búsqueda y RESTRICCIÓN DE ROLES
     const filteredNavItems = useMemo(() => {
-        // 1. Aplicamos la restricción de rol
+        // 1. Definimos las rutas que SÓLO el admin puede ver
+        const adminOnlyRoutes = [
+            "/admin/staff",
+            "/admin/categories",
+            "/admin/products"
+        ];
+        // 2. Aplicamos la restricción de rol
         const roleFiltered = initialNavItems.filter(item => {
-            // Permitir todos los elementos por defecto
-            if (item.to !== "/admin/staff") {
+            // Si la ruta NO está en la lista de admin-only, mostrarla siempre.
+            if (!adminOnlyRoutes.includes(item.to)) {
                 return true;
             }
-            // Solo permitir "/admin/staff" si el usuario es 'admin'
+            // Si la ruta SÍ ESTÁ en la lista, solo mostrarla si el user.role es 'admin'.
             return user?.role === 'admin';
         });
-        // 2. Aplicamos el filtro de búsqueda
+        // 3. Aplicamos el filtro de búsqueda sobre la lista ya filtrada por rol
         if (!searchQuery) return roleFiltered;
         return roleFiltered.filter(item =>
             item.label.toLowerCase().includes(searchQuery.toLowerCase())
         );
-    }, [searchQuery, user?.role]); // 🆕 Dependencia del rol del usuario
+    }, [searchQuery, user?.role]); // Dependemos del rol del usuario
 
     if (loading) {
         return (
@@ -86,14 +95,6 @@ const AdminLayout: React.FC<PropsWithChildren> = ({ children }) => {
 
             <div className="admin-layout">
                 <aside className={`admin-sidebar ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
-
-                    {/* 🎯 Logo/Enlace: CRUCIALMENTE apunta al dashboard, NO a la raíz pública */}
-                    {/* <div className="admin-logo">
-                        <Link to="/admin/dashboard" className="logo-link" onClick={isMobileMenuOpen ? toggleMobileMenu : undefined}>
-                            <img src={logoSrc} alt={`${clinicName} Logo`} className="clinic-logo" />
-                            <h2 className="logo-text">{clinicName}</h2>
-                        </Link>
-                    </div> */}
 
                     {/* Buscador de Opciones (Sin cambios) */}
                     <div className="search-bar-sidebar">

@@ -32,6 +32,8 @@ import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 import TenantHeadManager from './components/TenantHeadManager';
 import StaffAdmin from './pages/admin/StaffAdmin';
+import CategoriesAdmin from './pages/admin/CategoriesAdmin';
+import ProductsAdmin from './pages/admin/ProductsAdmin';
 
 
 function App() {
@@ -85,6 +87,8 @@ function App() {
                         <Route index element={<Navigate to="dashboard" replace />} />
                         <Route path="dashboard" element={<Dashboard />} />
                         <Route path="services" element={<ServicesAdmin />} />
+                        <Route path="categories" element={<CategoriesAdmin />} />
+                        <Route path="products" element={<ProductsAdmin />} />
                         <Route path="staff" element={<StaffAdmin  />} />
                         <Route path="profile" element={<ProfileAdmin />} />
                       </Routes>

@@ -21,6 +21,7 @@ interface ServiceForm {
 type FilterStatus = 'all' | 'active' | 'inactive';
 
 // Componentes de Iconos
+// Aplicamos estilos base para que Tailwind los pueda usar
 const IconEdit = (props: React.ComponentPropsWithoutRef<'span'>) => <span role="img" aria-label="Editar" {...props}>✏️</span>;
 const IconActivate = (props: React.ComponentPropsWithoutRef<'span'>) => <span role="img" aria-label="Activar" {...props}>✅</span>;
 const IconDeactivate = (props: React.ComponentPropsWithoutRef<'span'>) => <span role="img" aria-label="Desactivar" {...props}>🚫</span>;
@@ -49,6 +50,7 @@ const ServicesAdmin: React.FC = () => {
     // Helper para construir la URL de visualización (GET)
     const getDisplayImageUrl = (path: string) => {
         if (!path || path.startsWith('http')) return path;
+        // La URL se construye usando el host actual del navegador para archivos estáticos
         return `http://${window.location.host.split(':')[0]}:4000${path}`;
     };
 
@@ -63,7 +65,6 @@ const ServicesAdmin: React.FC = () => {
         setIsLoading(true);
         setFetchError(null);
 
-        // La URL envía el estado de filtro al backend
         const url = `${getApiUrl()}/services?status=${filterStatus}&search=${searchQuery}`;
 
         try {
@@ -148,6 +149,7 @@ const ServicesAdmin: React.FC = () => {
             const response = await fetch(url, {
                 method,
                 headers: {
+                    // No Content-Type aquí para FormData, el navegador lo hace automáticamente
                     'Authorization': `Bearer ${token}`
                 },
                 body: formData
@@ -366,9 +368,10 @@ const ServicesAdmin: React.FC = () => {
                             {services.map(service => (
                                 <div
                                     key={service.id}
+                                    // 👈 Eliminamos 'opacity-70' aquí. Solo el color del borde y el hover.
                                     className={`bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 border-t-4 ${service.is_active ? 'border-green-500 hover:shadow-xl' : 'border-red-500 hover:shadow-xl'}`}
                                 >
-                                    {/* Contenedor interno para el efecto de "desactivado" sin perder claridad */}
+                                    {/* 💡 Nuevo contenedor interno: Opcional si quieres un sutil efecto "desactivado" */}
                                     <div className={`${!service.is_active ? 'bg-gray-50' : ''}`}>
 
                                         {/* Imagen y Status Tag */}
