@@ -194,7 +194,7 @@ const Store: React.FC = () => {
                                             disabled={product.stock <= 0}
                                             onClick={() => handleReserveClick(product)} // 👈 AÑADIDO
                                         >
-                                            {product.stock > 0 ? (isAuthenticated ? 'Añadir al Carrito' : 'Reservar (Recoger en Tienda)') : 'Agotado'}
+                                            {product.stock > 0 ? (isAuthenticated ? 'Añadir al Carrito' : 'Reservar') : 'Agotado'}
                                         </button>
                                     </div>
                                 </div>

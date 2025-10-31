@@ -12,12 +12,12 @@ import '../../styles/admin.css';
 const initialNavItems = [
     { to: "/admin/dashboard", icon: <FaTachometerAlt />, label: "Panel" },
     { to: "/admin/services", icon: <FaClipboardList />, label: "Servicios" },
-    { to: "/admin/profile", icon: <FaClinicMedical />, label: "Mi Clínica" },
     // 🆕 Añadir la ruta de gestión de personal - Su visibilidad se controlará más abajo
-    { to: "/admin/categories", icon: <FaTags />, label: "Categorías (Tienda)" },
-    { to: "/admin/products", icon: <FaBoxOpen />, label: "Productos (Tienda)" },
+    { to: "/admin/categories", icon: <FaTags />, label: "Categorías" },
+    { to: "/admin/products", icon: <FaBoxOpen />, label: "Productos" },
     // --- 🔼 AÑADIDO ---
-    { to: "/admin/staff", icon: <FaUsers />, label: "Gestión de Personal" },
+    { to: "/admin/staff", icon: <FaUsers />, label: "Personal" },
+    { to: "/admin/profile", icon: <FaClinicMedical />, label: "Mi Clínica" },
 ];
 
 const AdminLayout: React.FC<PropsWithChildren> = ({ children }) => {
